@@ -19,7 +19,17 @@ use App\Http\Controllers\DocumentController;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-    Route::post('/department/{name}', [DocumentController::class, 'addDocument']);
+
+Route::group(['middleware' => ['auth:sanctum']], function () {
+    Route::get('/profile', function(Request $request) {
+        return auth()->user();
+    });
+    Route::get('/documents/{name}', [DocumentController::class, 'getAllDocumentsFromDepartment']);
+    Route::get('/documents/{name}/{id}', [DocumentController::class, 'getDocumentFromDepartment']);
+    Route::post('/documents/{name}', [DocumentController::class, 'makeDocument']);
+    Route::put('/documents/{name}/{id}', [DocumentController::class, 'updateDocument']);
+    Route::delete('/documents/{name}/{id}', [DocumentController::class, 'deleteDocument']);
+    Route::resource('documents', DocumentController::class);
+    Route::post('/logout', [AuthController::class, 'logout']);
 });
+
