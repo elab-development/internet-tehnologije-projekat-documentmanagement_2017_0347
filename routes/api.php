@@ -26,9 +26,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     });
     Route::get('/documents/{name}', [DocumentController::class, 'getAllDocumentsFromDepartment']);
     Route::get('/documents/{name}/{id}', [DocumentController::class, 'getDocumentFromDepartment']);
-    Route::post('/documents/{name}', [DocumentController::class, 'makeDocument']);
-    Route::post('/documents/{name}/{id}', [DocumentController::class, 'updateDocument']);
-    Route::delete('/documents/{name}/{id}', [DocumentController::class, 'deleteDocument']);
+    Route::post('/documents/{name}/make', [DocumentController::class, 'makeDocument']);
+    Route::post('/documents/{name}/{id}/update', [DocumentController::class, 'updateDocument']);
+    Route::delete('/documents/{name}/{id}/delete', [DocumentController::class, 'deleteDocument']);
     Route::resource('documents', DocumentController::class);
     Route::post('/logout', [AuthController::class, 'logout']);
 });
