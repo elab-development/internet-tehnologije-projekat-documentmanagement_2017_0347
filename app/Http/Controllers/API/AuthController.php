@@ -60,7 +60,7 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        $request->employee()->currentAccessToken()->delete();
+        $request->user()->currentAccessToken()->delete();
         return [
             'message' => 'Dovidjenja! Za ponovni pristup serverskim rutama, molimo Vas da se ponovo ulogujete.'
         ];

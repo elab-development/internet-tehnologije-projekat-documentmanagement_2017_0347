@@ -13,7 +13,7 @@ class Department extends Model
     public $timestamps = false;
 
     public function usersDepartment(){
-        return $this->hasMany(User::class);
+        return $this->hasMany(Employee::class);
     }
 
     public function documentsDepartment(){

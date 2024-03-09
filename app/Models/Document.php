@@ -17,11 +17,11 @@ class Document extends Model
     }
 
     public function usersDocument(){
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Employee::class, 'employee_fk');
     }
 
     public function departmentsDocument(){
-        return $this->belongsTo(Department::class);
+        return $this->belongsTo(Department::class, 'department_fk');
     } 
 }
 

@@ -6,7 +6,9 @@ use App\Models\Document;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\DocumentResource;
 use App\Models\Department;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -19,7 +21,7 @@ class DocumentController extends Controller
     {
         $departments = Department::all();
         if (empty($departments)) {
-            return response()->json(['message' => 'Nema odeljenja.']);
+            return response()->json(['message' => 'Nema odeljenja.'],404);
         }
         $dept_id = 0;
         foreach ($departments as $dept) {
@@ -30,7 +32,7 @@ class DocumentController extends Controller
         }
         $documents = Document::all();
         if (empty($documents)) {
-            return response()->json(['message' => 'Nema dokumanata.']);
+            return response()->json(['message' => 'Nema dokumanata.'],404);
         }
         $documentsfromDept = collect(new Document());
         foreach ($documents as $doc) {
@@ -38,7 +40,7 @@ class DocumentController extends Controller
                 $documentsfromDept->push($doc);
         }
         if (empty($documentsfromDept)) {
-            return response()->json(['message' => 'Nema dokumenata u ovom odeljenju.']);
+            return response()->json(['message' => 'Nema dokumenata u ovom odeljenju.'],404);
         }
         return DocumentResource::collection($documentsfromDept);
     }
@@ -47,7 +49,7 @@ class DocumentController extends Controller
     {
         $documents = $this->getAllDocumentsFromDepartment($name);
         if (empty($documents)) {
-            return response()->json(['message' => 'Nema dokumenata u ovom odeljenju.']);
+            return response()->json(['message' => 'Nema dokumenata u ovom odeljenju.'],404);
         }
 
         foreach ($documents as $doc) {
@@ -64,14 +66,14 @@ class DocumentController extends Controller
             }
         }
 
-        return response()->json(['message' => 'Nema tog dokumenta u ovom odeljenju.']);
+        return response()->json(['message' => 'Nema tog dokumenta u ovom odeljenju.'],404);
     }
 
     public function makeDocument(Request $request, $name)
     {
         $departments = Department::all();
         if (empty($departments)) {
-            return response()->json(['message' => 'Nema odeljenja.']);
+            return response()->json(['message' => 'Nema odeljenja.'],404);
         }
 
         $department_fk = 0;
@@ -85,7 +87,6 @@ class DocumentController extends Controller
         $format_values = ['pdf', 'word'];
         $validator = Validator::make($request->all(), [
             'title' => 'required',
-            'date' => 'required|date_format:Y-m-d H:i:s',
             'text' => 'required',
             'format' => [
                 'required',
@@ -94,22 +95,79 @@ class DocumentController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['message' => 'Proverite da li ste popunili sva polja i da li su datum i format ispravno uneseni.']);
+            return response()->json(['message' => 'Proverite da li ste popunili sva polja i da li je format ispravno unesen.'],422);
         }
 
         $employee = auth()->user();
         $employee_fk = $employee->id;
+        $date = Carbon::now();
 
-        $document =  Document::create([
+        Document::create([
             'title' => request('title'),
-            'date' => request('date'),
+            'date' => $date,
             'text' => request('text'),
             'format' => request('format'),
             'employee_fk' => $employee_fk,
             'department_fk' => $department_fk
         ]);
 
-        return $document;
+        return response()->json(['message' => 'Dokument uspesno napravljen.', 200]);
+    }
+
+    public function updateDocument(Request $request, $name, $id)
+    {
+        $document = Document::where('id', $id)->first();
+        if($document){
+            if($request->user()->role == 'admin' || $document->employee_fk == $request->user()->id){
+
+                $format_values = ['pdf', 'word'];
+                $validator = Validator::make($request->all(), [
+                    'title' => 'required',
+                    'text' => 'required',
+                    'format' => [
+                        'required',
+                        Rule::in($format_values)
+                    ]
+                ]);
+            
+                if ($validator->fails()) {
+                    return response()->json(['message' => 'Proverite da li ste popunili sva polja i da li je format ispravno unesen.'],422);
+                }
+                
+                $date = Carbon::now();
+                $document->title = $request->title;
+                $document->date = $date;
+                $document->text = $request->text;
+                $document->format = $request->format;
+                $document->update();
+
+                return response()->json(['message' => 'Dokument uspesno izmenjen.', 200]);
+            }
+            else{
+                return response()->json(['message' => 'Ne mozete menjati ovaj dokument.', 403]);
+            }
+        }else{
+            return response()->json(['message' => 'Dokument ne postoji.', 404]);
+        }
+    }
+
+
+    public function deleteDocument(Request $request, $name, $id)
+    {
+        $document = Document::where('id', $id)->first();
+        if($document){
+            if($request->user()->role == 'admin' || $document->employee_fk == $request->user()->id){
+                
+                $document->delete();
+
+                return response()->json(['message' => 'Dokument uspesno izbrisan.', 200]);
+            }
+            else{
+                return response()->json(['message' => 'Ne mozete brisati ovaj dokument.', 403]);
+            }
+        }else{
+            return response()->json(['message' => 'Dokument ne postoji.', 404]);
+        }
     }
     /**
      * Display a listing of the resource.
