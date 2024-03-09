@@ -3343,7 +3343,7 @@
         },
         {
             "name": "symfony/css-selector",
-            "version": "v7.0.3",
+            "version": "v6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/css-selector.git",
@@ -3475,7 +3475,7 @@
         },
         {
             "name": "symfony/error-handler",
-            "version": "v6.4.3",
+            "version": "v6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/error-handler.git",
@@ -3550,7 +3550,7 @@
         },
         {
             "name": "symfony/event-dispatcher",
-            "version": "v7.0.3",
+            "version": "v6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/event-dispatcher.git",
@@ -3706,7 +3706,7 @@
         },
         {
             "name": "symfony/finder",
-            "version": "v6.4.0",
+            "version": "v6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/finder.git",
@@ -3770,7 +3770,7 @@
         },
         {
             "name": "symfony/http-foundation",
-            "version": "v6.4.3",
+            "version": "v6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-foundation.git",
@@ -3847,7 +3847,7 @@
         },
         {
             "name": "symfony/http-kernel",
-            "version": "v6.4.3",
+            "version": "v6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-kernel.git",
@@ -3960,7 +3960,7 @@
         },
         {
             "name": "symfony/mailer",
-            "version": "v6.4.3",
+            "version": "v6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/mailer.git",
@@ -4040,7 +4040,7 @@
         },
         {
             "name": "symfony/mime",
-            "version": "v6.4.3",
+            "version": "v6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/mime.git",
@@ -4835,7 +4835,7 @@
         },
         {
             "name": "symfony/process",
-            "version": "v6.4.3",
+            "version": "v6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/process.git",
@@ -4896,7 +4896,7 @@
         },
         {
             "name": "symfony/routing",
-            "version": "v6.4.3",
+            "version": "v6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/routing.git",
@@ -5061,7 +5061,7 @@
         },
         {
             "name": "symfony/string",
-            "version": "v7.0.3",
+            "version": "v6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/string.git",
@@ -5147,7 +5147,7 @@
         },
         {
             "name": "symfony/translation",
-            "version": "v6.4.3",
+            "version": "v6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/translation.git",
@@ -5320,7 +5320,7 @@
         },
         {
             "name": "symfony/uid",
-            "version": "v6.4.3",
+            "version": "v6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/uid.git",
@@ -5394,7 +5394,7 @@
         },
         {
             "name": "symfony/var-dumper",
-            "version": "v6.4.3",
+            "version": "v6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/var-dumper.git",
