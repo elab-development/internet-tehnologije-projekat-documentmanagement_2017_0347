@@ -464,7 +464,10 @@
             "extra": {
                 "branch-alias": {
                     "dev-master": "4.0.x-dev"
-                }
+                },
+            "symfony": {
+                "require": "6.0.*"
+              }
             },
             "autoload": {
                 "psr-4": {
@@ -8194,3 +8197,4 @@
     "platform-dev": [],
     "plugin-api-version": "2.6.0"
 }
+
