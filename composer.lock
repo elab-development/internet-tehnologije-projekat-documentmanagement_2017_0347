@@ -464,10 +464,7 @@
             "extra": {
                 "branch-alias": {
                     "dev-master": "4.0.x-dev"
-                },
-            "symfony": {
-                "require": "6.4.*"
-              }
+                }
             },
             "autoload": {
                 "psr-4": {
@@ -8083,7 +8080,7 @@
                 "symfony/polyfill-ctype": "^1.8"
             },
             "conflict": {
-                "symfony/console": "<6.4"
+                "symfony/console": "<6.0"
             },
             "require-dev": {
                 "symfony/console": "^6.4|^7.0"
