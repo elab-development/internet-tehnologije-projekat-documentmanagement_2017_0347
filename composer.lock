@@ -466,7 +466,7 @@
                     "dev-master": "4.0.x-dev"
                 },
             "symfony": {
-                "require": "6.0.*"
+                "require": "6.4.*"
               }
             },
             "autoload": {
