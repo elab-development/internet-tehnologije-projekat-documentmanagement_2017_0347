@@ -28,7 +28,7 @@ class AuthController extends Controller
         if ($validator->fails()) {
             return response()->json($validator->errors());
         }
-
+        
         $employee = Employee::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -39,31 +39,26 @@ class AuthController extends Controller
 
         $token = $employee->createToken('auth_token')->plainTextToken;
 
-        return response()
-            ->json(['data' => $employee, 'access_token' => $token, 'token_type' => 'Bearer']);
+        return response()->json(['data' => $employee, 'access_token' => $token, 'token_type' => 'Bearer']);
     }
 
     public function login(Request $request)
     {
         if (!Auth::attempt($request->only('email', 'password'))) {
-            return response()
-                ->json(['message' => 'Morate biti registrovani.'], 401);
+            return response()->json(['message' => 'Morate biti registrovani i/ili uneti token za autentifikaciju.'], 401);
         }
 
         $employee= Employee::where('email', $request['email'])->firstOrFail();
 
         $token = $employee->createToken('auth_token')->plainTextToken;
 
-        return response()
-            ->json(['message' => 'Uspesno ste se prijavili na server!', 'access_token' => $token, 'token_type' => 'Bearer']);
+        return response()->json(['message' => 'Uspesno ste se prijavili na server!', 'access_token' => $token, 'token_type' => 'Bearer']);
     }
 
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
-        return [
-            'message' => 'Dovidjenja! Za ponovni pristup serverskim rutama, molimo Vas da se ponovo ulogujete.'
-        ];
+        return response()->json(['message' => 'Dovidjenja! Za ponovni pristup serverskim rutama, molimo Vas da se ponovo ulogujete.'], 200);
     }
 }
 

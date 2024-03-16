@@ -6,6 +6,8 @@ use App\Models\Document;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\DocumentResource;
 use App\Models\Department;
+use App\Models\DocuTag;
+use App\Models\Tag;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -32,7 +34,7 @@ class DocumentController extends Controller
         }
         $documents = Document::all();
         if (empty($documents)) {
-            return response()->json(['message' => 'Nema dokumanata.'],404);
+            return response()->json(['message' => 'Nema dokumenata.'],404);
         }
         $documentsfromDept = collect(new Document());
         foreach ($documents as $doc) {
@@ -121,7 +123,7 @@ class DocumentController extends Controller
             if($request->user()->role == 'admin' || $document->employee_fk == $request->user()->id){
 
                 $format_values = ['pdf', 'word'];
-                $validator = Validator::make($request->all(), [
+                $validator = Validator::make($request->only('title', 'text', 'format'), [
                     'title' => 'required',
                     'text' => 'required',
                     'format' => [
@@ -129,7 +131,7 @@ class DocumentController extends Controller
                         Rule::in($format_values)
                     ]
                 ]);
-            
+
                 if ($validator->fails()) {
                     return response()->json(['message' => 'Proverite da li ste popunili sva polja i da li je format ispravno unesen.'],422);
                 }
@@ -168,6 +170,98 @@ class DocumentController extends Controller
         }else{
             return response()->json(['message' => 'Dokument ne postoji.', 404]);
         }
+    }
+
+    public function getFilteredDocuments($name, $filter)
+    {
+        if(empty($filter)) $this->getAllDocumentsFromDepartment($name);
+
+        $departments = Department::all();
+        if (empty($departments)) {
+            return response()->json(['message' => 'Nema odeljenja.'],404);
+        }
+        $dept_id = 0;
+        foreach ($departments as $dept) {
+            if ($dept->name === $name) {
+                $dept_id = $dept->id;
+                break;
+            }
+        }
+
+        $documents = Document::all();
+        if (empty($documents)) {
+            return response()->json(['message' => 'Nema dokumenata.'],404);
+        }
+
+        $documentsfromDept = collect(new Document());
+        foreach ($documents as $doc) {
+            if ($doc->department_fk === $dept_id)
+                $documentsfromDept->push($doc);
+        }
+        if (empty($documentsfromDept)) {
+            return response()->json(['message' => 'Nema dokumenata u ovom odeljenju.'],404);
+        }
+
+        $tags = Tag::all();
+        if (empty($tags)) {
+            return response()->json(['message' => 'Nema tagova.'],404);
+        }
+        $tag_id = 0;
+        foreach ($tags as $t) {
+            if ($t->keyword == $filter) {
+                $tag_id = $t->id;
+                break;
+            }
+        }
+
+        $docu_tags = DocuTag::all();
+        if (empty($docu_tags)) {
+            return response()->json(['message' => 'Nema dokumenata sa tim tagom.'],404);
+        }
+        $documentsfromDeptWithFilter = collect(new Document());
+        foreach ($docu_tags as $dt) {
+            foreach($documentsfromDept as $docs){
+                if ($dt->document_id == $docs->id && $dt->tag_id == $tag_id) {
+                    $documentsfromDeptWithFilter->push($docs);
+                }
+            }
+        }
+
+        return DocumentResource::collection($documentsfromDeptWithFilter);
+    }
+
+    public function getSearchedDocuments($name, $search)
+    {
+        if(empty($search)) $this->getAllDocumentsFromDepartment($name);
+
+        $departments = Department::all();
+        if ($departments->isEmpty()) {
+            return response()->json(['message' => 'Nema odeljenja.'],404);
+        }
+        $dept_id = 0;
+        foreach ($departments as $dept) {
+            if ($dept->name == $name) {
+                $dept_id = $dept->id;
+                break;
+            }
+        }
+
+        $documents = Document::where('title', 'like', "%{$search}%")->orWhere('text', 'like', "%{$search}%")->get();
+        //return $documents;
+        if ($documents->isEmpty()) {
+            return response()->json(['message' => 'Nema dokumenata.'],404);
+        }
+
+        $documentsfromDept = collect(new Document());
+        foreach ($documents as $doc) {
+            if ($doc->department_fk == $dept_id)
+                $documentsfromDept->push($doc);
+        }
+        if ($documentsfromDept->isEmpty()) {
+            return response()->json(['message' => 'Nema dokumenata u ovom odeljenju sa tom pretragom.'],404);
+        }
+
+        return DocumentResource::collection($documentsfromDept);
     }
     /**
      * Display a listing of the resource.
