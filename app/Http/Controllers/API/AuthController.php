@@ -28,6 +28,10 @@ class AuthController extends Controller
         if ($validator->fails()) {
             return response()->json($validator->errors());
         }
+
+        if($request->role == 'admin' && $request->department_fk != 4){
+            return response()->json(['message' => 'Uloga administratora se ne dodeljuje clanovima ovog odeljenja.'], 403);
+        }
         
         $employee = Employee::create([
             'name' => $request->name,
