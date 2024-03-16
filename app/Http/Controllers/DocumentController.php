@@ -41,7 +41,7 @@ class DocumentController extends Controller
             if ($doc->department_fk === $dept_id)
                 $documentsfromDept->push($doc);
         }
-        if (empty($documentsfromDept)) {
+        if ($documentsfromDept->isEmpty()) {
             return response()->json(['message' => 'Nema dokumenata u ovom odeljenju.'],404);
         }
         return DocumentResource::collection($documentsfromDept);
