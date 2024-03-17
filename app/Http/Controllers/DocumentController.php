@@ -204,7 +204,7 @@ class DocumentController extends Controller
         }
 
         $tags = Tag::all();
-        if (empty($tags)) {
+        if ($tags->isEmpty()) {
             return response()->json(['message' => 'Nema tagova.'],404);
         }
         $tag_id = 0;
@@ -216,8 +216,8 @@ class DocumentController extends Controller
         }
 
         $docu_tags = DocuTag::all();
-        if (empty($docu_tags)) {
-            return response()->json(['message' => 'Nema dokumenata sa tim tagom.'],404);
+        if ($docu_tags->isEmpty()) {
+            return response()->json(['message' => 'Nema trazenog taga za dokument.'],404);
         }
         $documentsfromDeptWithFilter = collect(new Document());
         foreach ($docu_tags as $dt) {
@@ -226,6 +226,9 @@ class DocumentController extends Controller
                     $documentsfromDeptWithFilter->push($docs);
                 }
             }
+        }
+        if ($documentsfromDeptWithFilter->isEmpty()) {
+            return response()->json(['message' => 'Nema dokumenata sa tim tagom u ovom odeljenju.'],404);
         }
 
         return DocumentResource::collection($documentsfromDeptWithFilter);
