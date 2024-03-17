@@ -59,7 +59,7 @@ class DocumentController extends Controller
                 $document = new Document();
                 $document->id = $doc->id;
                 $document->title = $doc->title;
-                $document->date = Carbon::now();
+                $document->date = $doc->date;
                 $document->text = $doc->text;
                 $document->format = $doc->format;
                 $document->employee_fk = $doc->employee_fk;
