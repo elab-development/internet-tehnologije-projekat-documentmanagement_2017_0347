@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-function Header () {
 
+const Header = () => {
 
     return ( <Link className="login" to='/login'>Login\Register</Link>);
 
