@@ -11,8 +11,11 @@ const OneDocument = (props) => {
     return (
         <div>
             {document.title}
+            <br />
             {document.text}
+            <br />
             {document.date}
+            <br />
             {document.format}
         </div>
     )
