@@ -6,8 +6,10 @@ const OneDocument = (props) => {
     console.log('id', id);
     console.log(props);
 
-    const document = props.data.find(element => element.id == id)
+    const document = props.dataDocs.find(element => element.id == id)
+    const employee = props.dataEmp.find(element => element.id == document.employee)
     console.log('document', document)
+    console.log('employees', employee)
     return (
         <div>
             {document.title}
@@ -17,6 +19,8 @@ const OneDocument = (props) => {
             {document.date}
             <br />
             {document.format}
+            <br />
+            {employee.name}
         </div>
     )
 
