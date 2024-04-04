@@ -12,15 +12,15 @@ const OneDocument = (props) => {
     console.log('employees', employee)
     return (
         <div>
-            {document.title}
+            <h1>{document.title}</h1>
             <br />
-            {document.text}
+            <p>{document.text}</p>
             <br />
-            {document.date}
+            <p>{document.date}</p>
             <br />
-            {document.format}
+            <p>{document.format}</p>
             <br />
-            {employee.name}
+            <p>{employee.name}</p>
             <br />
             <button className="btn-edit">Edit document</button>
             <br />
