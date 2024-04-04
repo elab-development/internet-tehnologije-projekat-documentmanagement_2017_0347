@@ -21,6 +21,10 @@ const OneDocument = (props) => {
             {document.format}
             <br />
             {employee.name}
+            <br />
+            <button className="btn-edit">Edit document</button>
+            <br />
+            <button className="btn-delete">Delete document</button>
         </div>
     )
 
