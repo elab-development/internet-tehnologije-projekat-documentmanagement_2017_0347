@@ -6,7 +6,7 @@ import NavBar from '../NavBar';
 const Documents = (props) => {
     const {department} = useParams();
     return(
-        <>
+    
         <div>
             <NavBar/>
             These are the <b>{department}</b> documents:
@@ -25,9 +25,11 @@ const Documents = (props) => {
                     </div>
                 ))}
             </div>
-            <button>Create new document</button>
-        </div>
-        </>
+           <Link to = { "documents/" + {department}+ "/make"}><button>Create a document</button></Link>
+              
+           </div>
+
+        
     )
 }
 

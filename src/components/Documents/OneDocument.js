@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useParams, Link} from 'react-router-dom';
 
 const OneDocument = (props) => {
     const { id } = useParams();
@@ -22,7 +22,9 @@ const OneDocument = (props) => {
             <br />
             <p>{employee.name}</p>
             <br />
+            <Link to = {"/documents/:department/make/" + id}>
             <button className="btn-edit">Edit document</button>
+            </Link>
             <br />
             <button className="btn-delete">Delete document</button>
         </div>
