@@ -17,6 +17,7 @@ function App() {
   const [employees, setEmployees] = useState(EMPLOYEES);
   const [userId, setUserId]=useState(null);
   const [isAuthenticated, setIsAuthenticated]=useState(false);
+  const [isDocumentDeleted, setIsDocumentDeleted] = useState(false);
 
   const authenticate = (email,pass)=> {
      const user = employees.find(employee => employee.email === email && employees.password === pass);
@@ -63,6 +64,10 @@ const addDocument=(document)=>{
 const addEmployee =(employee)=>{
   setEmployees((oldEmployees)=>[...oldEmployees,employee])
 }
+const deleteDocument = (documentId) => {
+  setDocuments((oldDocuments) => oldDocuments.filter((document) => document.id != documentId));
+  setIsDocumentDeleted(true);
+}
   return (
     <div className="App">
       {
@@ -70,9 +75,9 @@ const addEmployee =(employee)=>{
         <Routes>
           <Route path="/" element={<Home/>}/>
           <Route path='/login' element={<Authentication authenticate={authenticate} registrate={registrate} />}/>
-          <Route path='/documents/:department' element={<Documents data = {documents}/>}/>
+          <Route path='/documents/:department' element={<Documents data={documents}/>}/>
           <Route path='/documents/:department/make/:id?' element={<MakeDocument data = {documents} addDocument={addDocument} userId = {userId}/>}/>
-          <Route path='/document/:id' element={<OneDocument dataDocs={documents} dataEmp = {employees}/>} />
+          <Route path='/document/:department/:id' element={<OneDocument deleteDocument={deleteDocument} isDocumentDeleted={isDocumentDeleted} dataDocs={documents} dataEmp = {employees}/>} />
         </Routes>
         </Router>
       }

@@ -1,11 +1,16 @@
-import { useParams, Link} from 'react-router-dom';
+import { useParams,useNavigate, Link} from 'react-router-dom';
 import NavBar from '../NavBar';
 
 const OneDocument = (props) => {
-    const { id } = useParams();
+    const { id,department } = useParams();
+    const navigate= useNavigate();
     
     const document = props.dataDocs.find(element => element.id == id)
     const employee = props.dataEmp.find(element => element.id == document.employee)
+    const handleDelete = () => {
+        props.deleteDocument(id);
+        navigate('/documents/' + department);
+    }
   
     return (
         <> 
@@ -25,7 +30,7 @@ const OneDocument = (props) => {
             <button className="btn-edit">Edit document</button>
             </Link>
             <br />
-            <button className="btn-delete">Delete document</button>
+            <button className="btn-delete" onClick={handleDelete}>Delete document</button>
         </div>
         </>
     )

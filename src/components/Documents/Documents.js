@@ -19,7 +19,7 @@ const Documents = (props) => {
                         <br />
                         {document.text.substring(0, 30)}...
                         <br />
-                        <Link to={"/document/" + document.id}>
+                        <Link to={"/document/"+document.department+ "/" + document.id}>
                         <button>View more</button>
                         </Link>
                     </div>

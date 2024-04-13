@@ -70,7 +70,7 @@ const MakeDocument = (props) => {
             </form>
             {
                 isDocumentCreated && (<div style ={{color : 'green'}}>
-                    <p>Document successfully {document !== null ? 'edited' : 'created'}!</p></div>
+                    <p style ={{color : 'green'}}>Document successfully {document !== null ? 'edited' : 'created'}!</p></div>
                 )
             }
         </div>
