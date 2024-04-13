@@ -6,8 +6,9 @@ import {useLocation, useParams} from 'react-router-dom'
 const MakeDocument = (props) => {
     
     const {id} = useParams();
-    
-    const document = id !== null ? props.data.find(doc => doc.id == id) : null; 
+     
+    // const document = id !== null ? props.data.find(doc => doc.id == id) : null; 
+    const document = id !== undefined ? props.data.find(doc => doc.id == id) : null; 
     
     const [title, setTitle] = useState(document ? document.title : '');
     const [date, setDate] = useState(document ? document.date : '2020-01-01');
@@ -22,6 +23,7 @@ const MakeDocument = (props) => {
     const handleSubmit = (event) => {
         event.preventDefault();
         const newDocument={
+            id : document !== null ? document.id : null,
             title: title,
             date: date, 
             text: text ,
@@ -38,7 +40,6 @@ const MakeDocument = (props) => {
   return (
     <div>
         <NavBar/> 
-            Make document:
             <form className="login-form" onSubmit={handleSubmit}>
                 <label htmlFor="title">Title</label>
                 <input value={title} onChange={handleTitleChange} placeholder="Title" />
@@ -63,11 +64,13 @@ const MakeDocument = (props) => {
                     onChange={(event) => setFormat(event.target.value)}
                     checked={format === 'pdf'}
                 />pdf
-                <button type="submit">Make/Edit</button>
+                <button type="submit">
+                {document !== null ? 'Edit' : 'Create'}
+                </button>
             </form>
             {
-                isDocumentCreated && (<div>
-                    Document successfully created!</div>
+                isDocumentCreated && (<div style ={{color : 'green'}}>
+                    <p>Document successfully {document !== null ? 'edited' : 'created'}!</p></div>
                 )
             }
         </div>

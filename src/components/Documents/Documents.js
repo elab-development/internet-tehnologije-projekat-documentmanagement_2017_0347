@@ -25,8 +25,7 @@ const Documents = (props) => {
                     </div>
                 ))}
             </div>
-           <Link to = { "/documents/" + department + "/make"}><button>Create a document</button></Link>
-              
+           <Link to = { "/documents/" + department + "/make"}><button>Create a document</button></Link>   
            </div>
 
         

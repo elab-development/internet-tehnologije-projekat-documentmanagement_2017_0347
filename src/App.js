@@ -25,10 +25,43 @@ function App() {
       setUserId(user.id);
      }
   }
+  const registrate = (emName, email, pass, role, department) => {
+    const user = employees.find(employee => employee.email === email && employees.password === pass);
+    const empl = {
+      name: emName,
+      email: email,
+      password: pass,
+      role: role,
+      department: department
+    };
+    if (user) {
+      //vec postoji, povratak naloga
+    } else {
+      addEmployee(empl);
+      authenticate(empl.email,empl.password);
+      
+    }
+  }
 
 const addDocument=(document)=>{
-  setDocuments((oldDocuments)=>[...oldDocuments,document])
+ // setDocuments((oldDocuments)=>[...oldDocuments,document])
+ if (document.id === null) {
+  //dodavanje
+  setDocuments((oldDocuments) => [...oldDocuments, document])
+} else {
+  setDocuments(
+    (oldDocuments) => oldDocuments.map(element => {
+      if (element.id === document.id) {
+        return document;
+      } 
+      return element;
+    })
+  )
+}
    
+}
+const addEmployee =(employee)=>{
+  setEmployees((oldEmployees)=>[...oldEmployees,employee])
 }
   return (
     <div className="App">
@@ -36,7 +69,7 @@ const addDocument=(document)=>{
         <Router>
         <Routes>
           <Route path="/" element={<Home/>}/>
-          <Route path='/login' element={<Authentication authenticate={authenticate} />}/>
+          <Route path='/login' element={<Authentication authenticate={authenticate} registrate={registrate} />}/>
           <Route path='/documents/:department' element={<Documents data = {documents}/>}/>
           <Route path='/documents/:department/make/:id?' element={<MakeDocument data = {documents} addDocument={addDocument} userId = {userId}/>}/>
           <Route path='/document/:id' element={<OneDocument dataDocs={documents} dataEmp = {employees}/>} />

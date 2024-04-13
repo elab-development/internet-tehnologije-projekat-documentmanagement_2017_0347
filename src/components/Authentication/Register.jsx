@@ -1,4 +1,6 @@
-import React , {useState} from "react"
+
+import React , {useState} from "react";
+import {useNavigate} from 'react-router-dom';
 
 export const Register = (props) => {
     const [email, setEmail] = useState('');
@@ -6,10 +8,13 @@ export const Register = (props) => {
     const [name, setName] = useState('');
     const [role, setRole] = useState('');
     const [department, setDept] = useState('');
+    const navigate = useNavigate();
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log(email);
+        props.registrate(name, email, pass,role,department); 
+      //  props.authenticate(email,pass); 
+        navigate("/");
     }
 
     return(
