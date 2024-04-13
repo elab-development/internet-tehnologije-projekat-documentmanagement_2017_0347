@@ -8,6 +8,8 @@ const Authentication = ({authenticate})=>{
     const toggleForm = (formName) => {
       setCurrentForm(formName);
     }
-    return (currentForm === "login" ? <Login  onFormSwitch = {toggleForm} authenticate ={authenticate }/> : <Register onFormSwitch = {toggleForm}/>)
+    return (currentForm === "login" 
+    ? <Login  onFormSwitch = {toggleForm} authenticate ={authenticate }/> 
+    : <Register onFormSwitch = {toggleForm}/>)
 }
-export default Authentication;
+export default Authentication; 

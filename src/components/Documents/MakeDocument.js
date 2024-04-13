@@ -6,7 +6,9 @@ import {useLocation, useParams} from 'react-router-dom'
 const MakeDocument = (props) => {
     
     const {id} = useParams();
+    
     const document = id !== null ? props.data.find(doc => doc.id == id) : null; 
+    
     const [title, setTitle] = useState(document ? document.title : '');
     const [date, setDate] = useState(document ? document.date : '2020-01-01');
     const [text, setText] = useState(document ? document.text : '');
@@ -18,13 +20,13 @@ const MakeDocument = (props) => {
     }
 
     const handleSubmit = (event) => {
-        event.preventDeault();
+        event.preventDefault();
         const newDocument={
             title: title,
             date: date, 
             text: text ,
             format : format,
-            department : location.pathname.splits('/')[2],
+            department : location.pathname.split('/')[2],
             employee: props.userId
         }
 
@@ -53,14 +55,14 @@ const MakeDocument = (props) => {
                     value="word"
                     onChange={(event) => setFormat(event.target.value)}
                     checked={format === 'word'}
-                />Word
+                />word
                 <input
                     type="radio"
                     name="format"
                     value="pdf"
                     onChange={(event) => setFormat(event.target.value)}
                     checked={format === 'pdf'}
-                />Pdf
+                />pdf
                 <button type="submit">Make/Edit</button>
             </form>
             {

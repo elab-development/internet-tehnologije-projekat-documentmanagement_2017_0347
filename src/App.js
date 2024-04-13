@@ -36,13 +36,12 @@ const addDocument=(document)=>{
         <Router>
         <Routes>
           <Route path="/" element={<Home/>}/>
-    <Route path='/login' element={<Authentication authenticate={authenticate} />}/>
+          <Route path='/login' element={<Authentication authenticate={authenticate} />}/>
           <Route path='/documents/:department' element={<Documents data = {documents}/>}/>
           <Route path='/documents/:department/make/:id?' element={<MakeDocument data = {documents} addDocument={addDocument} userId = {userId}/>}/>
           <Route path='/document/:id' element={<OneDocument dataDocs={documents} dataEmp = {employees}/>} />
         </Routes>
         </Router>
-        //currentForm === "login" ? <Login onFormSwitch = {toggleForm}/> : <Register onFormSwitch = {toggleForm}/>
       }
     </div>
   );

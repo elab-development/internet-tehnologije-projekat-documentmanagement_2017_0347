@@ -1,16 +1,15 @@
 import { useParams, Link} from 'react-router-dom';
+import NavBar from '../NavBar';
 
 const OneDocument = (props) => {
     const { id } = useParams();
     
-    console.log('id', id);
-    console.log(props);
-
     const document = props.dataDocs.find(element => element.id == id)
     const employee = props.dataEmp.find(element => element.id == document.employee)
-    console.log('document', document)
-    console.log('employees', employee)
+  
     return (
+        <> 
+        <NavBar/>
         <div>
             <h1>{document.title}</h1>
             <br />
@@ -22,12 +21,13 @@ const OneDocument = (props) => {
             <br />
             <p>{employee.name}</p>
             <br />
-            <Link to = {"/documents/:department/make/" + id}>
+            <Link to = {"/documents/"+document.department + "/make/" + id}>
             <button className="btn-edit">Edit document</button>
             </Link>
             <br />
             <button className="btn-delete">Delete document</button>
         </div>
+        </>
     )
 
 }

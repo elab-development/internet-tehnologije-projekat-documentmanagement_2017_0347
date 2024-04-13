@@ -2,7 +2,7 @@ import React from 'react'
 import { Link,  useParams } from 'react-router-dom';
 import Header from '../Header';
 import NavBar from '../NavBar';
-
+// {"/documents/" + department + "/"+ document.id}
 const Documents = (props) => {
     const {department} = useParams();
     return(
@@ -17,7 +17,7 @@ const Documents = (props) => {
                         <br />
                         {document.date}
                         <br />
-                        {document.text.substring(0, 20)}...
+                        {document.text.substring(0, 30)}...
                         <br />
                         <Link to={"/document/" + document.id}>
                         <button>View more</button>
@@ -25,7 +25,7 @@ const Documents = (props) => {
                     </div>
                 ))}
             </div>
-           <Link to = { "documents/" + {department}+ "/make"}><button>Create a document</button></Link>
+           <Link to = { "/documents/" + department + "/make"}><button>Create a document</button></Link>
               
            </div>
 

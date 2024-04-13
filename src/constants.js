@@ -12,7 +12,7 @@ export const DOCUMENTS = [
         'Either party may terminate the employment relationship at any time, with or without cause, upon written notice to the other party.'+
         'Upon termination, the Employee shall return all company property and documents in their possession.',
         date: '2022-02-05',
-        format: 'Word',
+        format: 'word',
         employee: 8,
         department: 'hr'
     },
@@ -29,7 +29,7 @@ export const DOCUMENTS = [
         'Work Hours: The standard workweek consists of 40 hours, Monday through Friday. Specific work hours may vary based on departmental needs.'+
         'Job Performance: Employees are expected to perform their job duties effectively and efficiently, meeting or exceeding established performance standards.',
         date: '2022-06-15',
-        format: 'Pdf',
+        format: 'pdf',
         employee: 9,
         department: 'hr'
     },
@@ -42,7 +42,7 @@ export const DOCUMENTS = [
         'Conditions of Employment: Completion of a background check satisfactory to [Company Name]. Submission of documentation verifying your eligibility to work in [Country]. Signing and adherence to the company\'s policies and procedures, including but not limited to the confidentiality agreement and code of conduct.'+
         'Acceptance of Offer: Please sign and return a copy of this offer letter to indicate your acceptance of the terms and conditions outlined herein. Your acceptance must be received no later than [Date].',
         date: '2023-06-15',
-        format: 'Word',
+        format: 'word',
         employee: 10,
         department: 'hr'
     },
@@ -55,7 +55,7 @@ export const DOCUMENTS = [
         'Expected Date of Return: [Date]Additional Information (if applicable): [Employee provides any relevant details about their illness or circumstances]'+
         'I certify that the information provided above is true and accurate to the best of my knowledge. I understand that sick leave is provided for genuine illness or medical appointments and may be subject to verification by the company.',
         date: '2023-01-25',
-        format: 'Pdf',
+        format: 'pdf',
         employee: 8,
         department: 'hr'
     },
@@ -68,7 +68,7 @@ export const DOCUMENTS = [
         'The Employee agrees to:  Maintain the confidentiality of all Confidential Information received during the course of employment with the Company. Not disclose Confidential Information to any third party without prior written consent from the Company. Use Confidential Information solely for the purpose of performing job duties for the Company.'+
         'Upon termination of employment with the Company, the Employee agrees to promptly return all Confidential Information, including any copies or reproductions thereof, to the Company.',
         date: '2024-01-31',
-        format: 'Word',
+        format: 'word',
         employee: 9,
         department: 'hr'
     },
@@ -82,7 +82,7 @@ export const DOCUMENTS = [
         'Goal 3: Improve Communication Skills Objective: Enhance verbal and written communication abilities. Action Plan: Enroll in communication skills training courses. Practice delivering presentations or reports. Participate in group discussions and debates. Timeline: Start within [specified timeframe], ongoing improvement.'+
         'Conclusion: The training and development plan outlined above aims to support [Employee Name] in achieving their professional growth and career aspirations. By investing in continuous learning and skill enhancement, we aim to maximize employee potential and contribute to both individual and organizational success.',
         date: '2027-05-09',
-        format: 'Pdf',
+        format: 'pdf',
         employee: 10,
         department: 'hr'
     },
@@ -97,7 +97,7 @@ export const DOCUMENTS = [
         'Improvement Plan:  If applicable, outline any specific steps or expectations for improvement that the employee must follow to address the issues identified.'+
         'Employee Acknowledgment: I acknowledge that I have been informed of the disciplinary action taken against me and understand the reasons for such action. I understand the consequences of further policy violations and agree to comply with company policies and expectations moving forward.',
         date: '2026-06-07',
-        format: 'Word',
+        format: 'word',
         employee: 8,
         department: 'hr'
     },
@@ -110,7 +110,7 @@ export const DOCUMENTS = [
         'What aspects of your job did you find most satisfying?'+
         'Is there any additional feedback or comments you would like to provide?',
         date: '2021-06-15',
-        format: 'Pdf',
+        format: 'pdf',
         employee: 9,
         department: 'hr'
     },
@@ -127,7 +127,7 @@ export const DOCUMENTS = [
         'How would you rate the work-life balance provided by the company?'+
         'Please provide any additional comments or suggestions for improvement:',
         date: '2020-01-25',
-        format: 'Word',
+        format: 'word',
         employee: 10,
         department: 'hr'
     },
@@ -140,7 +140,7 @@ export const DOCUMENTS = [
         'Vision Insurance: [ ] I elect to enroll in the company\'s vision insurance plan. [ ] I decline enrollment in the company\'s vision insurance plan.'+
         'Retirement Plan (401(k)):  [ ] I elect to participate in the company\'s 401(k) retirement plan. Contribution percentage: _____% of salary. Beneficiary designation: __________________________',
         date: '2024-09-23',
-        format: 'Pdf',
+        format: 'pdf',
         employee: 8,
         department: 'hr'
     },
@@ -155,7 +155,7 @@ export const DOCUMENTS = [
         'Security:  Network firewall installed on the router to protect against unauthorized access and external threats.  Access control lists (ACLs) implemented on the switch to restrict access to sensitive resources.'+
         'Monitoring and Management: Network monitoring tools are deployed to monitor network traffic, identify potential issues, and ensure optimal performance and uptime.',
         date: '2022-02-05',
-        format: 'Word',
+        format: 'word',
         employee: 5,
         department: 'it'
     },
@@ -173,7 +173,7 @@ export const DOCUMENTS = [
         'The website should be scalable to accommodate increasing traffic and user activity.'+
         'User authentication and sensitive data (e.g., passwords, payment information) should be securely stored and encrypted.',
         date: '2022-07-18',
-        format: 'Pdf',
+        format: 'pdf',
         employee: 6,
         department: 'it'
     },
@@ -190,7 +190,7 @@ export const DOCUMENTS = [
         ' Project Management:  Users can create and manage projects, each containing multiple tasks. Projects can be shared with other users for collaboration.'+
         ' Project Management: Users can create and manage projects, each containing multiple tasks. Projects can be shared with other users for collaboration.',
         date: '2023-06-15',
-        format: 'Word',
+        format: 'word',
         employee: 7,
         department: 'it'
     },
@@ -207,7 +207,7 @@ export const DOCUMENTS = [
         'Provide access to IT systems and necessary information for troubleshooting and maintenance. Report service requests and incidents promptly and accurately. Adhere to security policies and guidelines outlined by the Service Provider.'+
         'The Service Provider will provide regular performance reports to the Client, detailing uptime, response times, and incident resolution metrics. In case of unresolved incidents or breaches of SLA, escalation procedures will be followed as outlined in the agreement.',
         date: '2023-09-25',
-        format: 'Pdf',
+        format: 'pdf',
         employee: 5,
         department: 'it'
     },
@@ -223,7 +223,7 @@ export const DOCUMENTS = [
         'Communication and Documentation: All stakeholders will be kept informed of change requests, approvals, and implementation status through regular communication channels. Detailed documentation of change requests, approvals, implementation plans, and post-implementation reviews will be maintained for audit and reference purposes.'+
         'Training sessions and awareness programs will be conducted to familiarize staff with change management policies, procedures, and best practices. Regular updates and reminders will be provided to reinforce change management principles and promote a culture of accountability and collaboration.',
         date: '2023-01-15',
-        format: 'Word',
+        format: 'word',
         employee: 6,
         department: 'it'
     },
@@ -242,7 +242,7 @@ export const DOCUMENTS = [
         'Develop procedures for communicating with customers, partners, and regulatory authorities during a disaster event. Designate spokespersons and establish channels for providing timely updates and status reports.'+
         'Testing: Conduct regular disaster recovery drills and exercises to validate the effectiveness of the DRP. Evaluate response times, recovery procedures, and communication protocols during simulated disaster scenarios.',
         date: '2022-02-05',
-        format: 'Pdf',
+        format: 'pdf',
         employee: 7,
         department: 'it'
     },
@@ -260,7 +260,7 @@ export const DOCUMENTS = [
         'IT systems and networks shall be monitored continuously for suspicious activities, unauthorized access attempts, and security vulnerabilities. Security logs and audit trails shall be reviewed regularly to detect and investigate potential security incidents.'+
         'Employees shall receive regular training and awareness programs on IT security best practices, policies, and procedures. Security awareness campaigns shall be conducted to promote a culture of security awareness and accountability across the organization.',
         date: '2022-06-15',
-        format: 'Word',
+        format: 'word',
         employee: 5,
         department: 'it'
     },
@@ -276,7 +276,7 @@ export const DOCUMENTS = [
         'Approval: Incident Coordinator: [Name of Incident Coordinator] [Incident Coordinator Signature]'+
         'Date: [Date]',
         date: '2021-06-15',
-        format: 'Pdf',
+        format: 'pdf',
         employee: 6,
         department: 'it'
     },
@@ -293,7 +293,7 @@ export const DOCUMENTS = [
         'Backup Testing: Regular backup tests shall be conducted to ensure the integrity and recoverability of backup data. Backup tests may include partial and full restores to verify data integrity and identify any issues with the backup process.'+
         'Disaster Recovery Drills: Disaster recovery drills shall be conducted periodically to validate the effectiveness of recovery procedures. Drills may simulate various disaster scenarios, such as server failures, data breaches, or natural disasters.',
         date: '2023-06-25',
-        format: 'Word',
+        format: 'word',
         employee: 7,
         department: 'it'
     },
@@ -312,7 +312,7 @@ export const DOCUMENTS = [
         'Profile Settings: Update your profile information, including name, email, and password. Upload a profile picture if desired.'+
         'Logging Out: To log out of the application, click on your profile icon in the top right corner and select the "Log Out" option.',
         date: '2022-01-07',
-        format: 'Pdf',
+        format: 'pdf',
         employee: 5,
         department: 'it'
     }
