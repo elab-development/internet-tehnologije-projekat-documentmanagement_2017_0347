@@ -7,6 +7,7 @@ const OneDocument = (props) => {
     
     const document = props.dataDocs.find(element => element.id == id)
     const employee = props.dataEmp.find(element => element.id == document.employee)
+    
     const handleDelete = () => {
         props.deleteDocument(id);
         navigate('/documents/' + department);
@@ -15,22 +16,25 @@ const OneDocument = (props) => {
     return (
         <> 
         <NavBar/>
-        <div>
-            <h1>{document.title}</h1>
+        <br/>
+        <div className='container'>
+            <span className='title'><b>{document.title}</b></span>
+            <span className='badge'>{document.format}</span>
             <br />
+            <span className='document-date'>
+             {new Date(document.date).toLocaleDateString()}
+            </span>
+            <br/>
+            <p>Created by <b>{employee.name}</b></p>
             <p>{document.text}</p>
             <br />
-            <p>{document.date}</p>
-            <br />
-            <p>{document.format}</p>
-            <br />
-            <p>{employee.name}</p>
-            <br />
+            <br/>
+            <div className="change-buttons">
             <Link to = {"/documents/"+document.department + "/make/" + id}>
-            <button className="btn-edit">Edit document</button>
+            <button >Edit document</button>
             </Link>
-            <br />
-            <button className="btn-delete" onClick={handleDelete}>Delete document</button>
+            <button className="delete-button" onClick={handleDelete}>Delete document</button>
+            </div>
         </div>
         </>
     )

@@ -1,4 +1,4 @@
-import React , {useState} from "react";
+import React , {useState, useEffect} from "react";
 import './App.css';
 
 import {Home} from './Home';
@@ -9,6 +9,7 @@ import { DOCUMENTS } from "./constants";
 import { EMPLOYEES } from "./constants";
 import Documents from "./components/Documents/Documents";
 import OneDocument from "./components/Documents/OneDocument";
+import uuid from 'react-uuid';
 
 
 function App() {
@@ -18,6 +19,15 @@ function App() {
   const [userId, setUserId]=useState(null);
   const [isAuthenticated, setIsAuthenticated]=useState(false);
   const [isDocumentDeleted, setIsDocumentDeleted] = useState(false);
+
+  useEffect(() => {
+    if (isDocumentDeleted) {
+      setTimeout(() => {
+        setIsDocumentDeleted(false);
+      }, 6000)
+    }
+  }, [isDocumentDeleted]);
+
 
   const authenticate = (email,pass)=> {
      const user = employees.find(employee => employee.email === email && employees.password === pass);
@@ -29,6 +39,7 @@ function App() {
   const registrate = (emName, email, pass, role, department) => {
     const user = employees.find(employee => employee.email === email && employees.password === pass);
     const empl = {
+      id : uuid(),
       name: emName,
       email: email,
       password: pass,
@@ -48,7 +59,7 @@ const addDocument=(document)=>{
  // setDocuments((oldDocuments)=>[...oldDocuments,document])
  if (document.id === null) {
   //dodavanje
-  setDocuments((oldDocuments) => [...oldDocuments, document])
+  setDocuments((oldDocuments) => [...oldDocuments, {...document, id: uuid()}])
 } else {
   setDocuments(
     (oldDocuments) => oldDocuments.map(element => {
@@ -75,9 +86,9 @@ const deleteDocument = (documentId) => {
         <Routes>
           <Route path="/" element={<Home/>}/>
           <Route path='/login' element={<Authentication authenticate={authenticate} registrate={registrate} />}/>
-          <Route path='/documents/:department' element={<Documents data={documents}/>}/>
+          <Route path='/documents/:department' element={<Documents data={documents} isDocumentDeleted={isDocumentDeleted}/>}/>
           <Route path='/documents/:department/make/:id?' element={<MakeDocument data = {documents} addDocument={addDocument} userId = {userId}/>}/>
-          <Route path='/document/:department/:id' element={<OneDocument deleteDocument={deleteDocument} isDocumentDeleted={isDocumentDeleted} dataDocs={documents} dataEmp = {employees}/>} />
+          <Route path='/document/:department/:id' element={<OneDocument deleteDocument={deleteDocument}  dataDocs={documents} dataEmp = {employees}/>} />
         </Routes>
         </Router>
       }

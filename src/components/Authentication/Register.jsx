@@ -22,15 +22,15 @@ export const Register = (props) => {
             <h2>Register</h2>
             <form className="register-form" onSubmit={handleSubmit}>
                 <label htmlFor = "email">email</label>
-                <input value = {email} onChange={(e) => setEmail(e.target.value)} type = "email" placeholder="email" id = "email" name = "email"/>
+                <input value = {email} onChange={(e) => setEmail(e.target.value)} type = "email" placeholder="email" id = "email" />
                 <label htmlFor = "password">password</label>
-                <input value = {pass} onChange={(e) => setPass(e.target.value)} type = "password" placeholder="********" id = "password" name = "password"/>
+                <input value = {pass} onChange={(e) => setPass(e.target.value)} type = "password" placeholder="********" id = "password" />
                 <label htmlFor = "name">name</label>
-                <input value = {name} onChange={(e) => setName(e.target.value)} type = "name" placeholder="name" id = "name" name = "name"/>
+                <input value = {name} onChange={(e) => setName(e.target.value)} type = "name" placeholder="name" id = "name" />
                 <label htmlFor = "role">role</label>
-                <input value = {role} onChange={(e) => setRole(e.target.value)} type = "role" placeholder="role" id = "role" name = "role"/>
+                <input value = {role} onChange={(e) => setRole(e.target.value)} type = "text" placeholder="role" id = "role" />
                 <label htmlFor = "department">department</label>
-                <input value = {department} onChange={(e) => setDept(e.target.value)} type = "department" placeholder="department" id = "department" name = "department"/>
+                <input value = {department} onChange={(e) => setDept(e.target.value)} type = "text" placeholder="department" id = "department" />
                 <button type="submit">Register</button>
             </form>
             <button className = "link-btn" onClick={() => props.onFormSwitch('login')}>Already have an account? Login here</button> 

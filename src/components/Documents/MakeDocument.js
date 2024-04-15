@@ -3,6 +3,7 @@ import {useState} from 'react';
 import NavBar from '../NavBar';
 import {useLocation, useParams} from 'react-router-dom'
 
+
 const MakeDocument = (props) => {
     
     const {id} = useParams();
@@ -29,7 +30,8 @@ const MakeDocument = (props) => {
             text: text ,
             format : format,
             department : location.pathname.split('/')[2],
-            employee: props.userId
+            employee : 1
+            // employee: props.userId
         }
 
        props.addDocument(newDocument);
@@ -40,37 +42,39 @@ const MakeDocument = (props) => {
   return (
     <div>
         <NavBar/> 
-            <form className="login-form" onSubmit={handleSubmit}>
+        <div className="make-doc-container">
+             <form  onSubmit={(event) => handleSubmit(event)}>
                 <label htmlFor="title">Title</label>
-                <input value={title} onChange={handleTitleChange} placeholder="Title" />
+                <input className="make-doc-input" value={title} onChange={handleTitleChange} placeholder="Title" />
+                <br/>
                 <label htmlFor="date">Date</label>
-                <input value={date} onChange={(event) => setDate(event.target.value)} type="date" />
-                <textarea 
-                    value={text} 
-                    onChange={(event) => setText(event.target.value)}
-                    rows={10}
+                <input className="make-doc-input" value={date} onChange={(event) => setDate(event.target.value)} type="date" />
+                <textarea  className="make-doc-input doc-description"
+                    value={text} onChange={(event) => setText(event.target.value)}
+                    rows={20} resize="none"
                 ></textarea>
-                <input
-                    type="radio"
-                    name="format"
-                    value="word"
+                <br/>
+                <input className="radio-input"
+                    type="radio" name="format" value="word"
                     onChange={(event) => setFormat(event.target.value)}
                     checked={format === 'word'}
                 />word
-                <input
-                    type="radio"
-                    name="format"
-                    value="pdf"
+                <input className="radio-input"
+                    type="radio" name="format" value="pdf"
                     onChange={(event) => setFormat(event.target.value)}
                     checked={format === 'pdf'}
                 />pdf
+                <br/>
+                <div className='submit-make-doc'>
                 <button type="submit">
-                {document !== null ? 'Edit' : 'Create'}
+                     {document !== null ? 'Edit' : 'Create'}
                 </button>
+                </div >
             </form>
+            </div>
             {
-                isDocumentCreated && (<div style ={{color : 'green'}}>
-                    <p style ={{color : 'green'}}>Document successfully {document !== null ? 'edited' : 'created'}!</p></div>
+                isDocumentCreated && (<div className='make-edit-doc-success'>
+                    <p>Document successfully {document !== null ? 'edited' : 'created'}!</p></div>
                 )
             }
         </div>

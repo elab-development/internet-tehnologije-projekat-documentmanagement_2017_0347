@@ -13,9 +13,6 @@ const NavBar = () =>{
         <Link className="nav-bar-item" to="/documents/finance">Finance</Link>
         <Link className="nav-bar-item" to="/documents/administration">Administration</Link>
         <Link className="nav-bar-item" to="/contact">Contact</Link>
-        <input type="text" placeholder="Search.."></input>
-       
-       
     </div>
   )
 }

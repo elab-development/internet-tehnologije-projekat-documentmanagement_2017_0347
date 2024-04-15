@@ -11,7 +11,6 @@ export const Login = (props) => {
         e.preventDefault();
        props.authenticate(email,pass);
         navigate("/");
-        
     }
 
     return(
