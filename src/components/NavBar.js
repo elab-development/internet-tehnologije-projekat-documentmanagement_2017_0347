@@ -1,18 +1,17 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 
-// <input type="text" placeholder="Search.."></input>
 const NavBar = () =>{
   return (
     <div class="nav-bar">
-        <Link className="nav-bar-item" to="/">Home</Link>
-        <Link className="nav-bar-item" to="/documents/hr">HR</Link>
-        <Link className="nav-bar-item" to="/documents/it">IT</Link>
-        <Link className="nav-bar-item" to="/documents/marketing">Marketing</Link>
-        <Link className="nav-bar-item" to="/documents/production" >Production</Link>
-        <Link className="nav-bar-item" to="/documents/finance">Finance</Link>
-        <Link className="nav-bar-item" to="/documents/administration">Administration</Link>
-        <Link className="nav-bar-item" to="/contact">Contact</Link>
+        <NavLink className="nav-bar-item" to="/">Home</NavLink>
+        <NavLink className="nav-bar-item" to="/documents/hr">HR</NavLink>
+        <NavLink className="nav-bar-item" to="/documents/it">IT</NavLink>
+        <NavLink className="nav-bar-item" to="/documents/marketing">Marketing</NavLink>
+        <NavLink className="nav-bar-item" to="/documents/production" >Production</NavLink>
+        <NavLink className="nav-bar-item" to="/documents/finance">Finance</NavLink>
+        <NavLink className="nav-bar-item" to="/documents/administration">Administration</NavLink>
+        <NavLink className="nav-bar-item" to="/contact">Contact</NavLink>
     </div>
   )
 }

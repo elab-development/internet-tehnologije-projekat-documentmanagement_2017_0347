@@ -35,18 +35,18 @@ const Documents = (props) => {
                         && (!isPdfChecked ? document.format !== 'pdf' : true)
                         && (!isWordChecked ? document.format !== 'word' : true)
                     ).map(document => (
+                            
                         <div className='card'>
                             <b>{document.title}</b>
                             <br />
                             {new Date(document.date).toLocaleDateString()}
                             <br />
                             {document.text.substring(0, 35)}...
-                            <br />
-                            <Link className="view-more-button" to={"/document/" + document.department + "/" + document.id}>
-                                <button>View more</button>
+                            <Link className="regular"to={"/document/" + document.department + "/" + document.id}>
+                                View more
                             </Link>
                         </div>
-                    ))}
+                   )) }
             </div>
         </div>
 

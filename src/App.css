@@ -4,7 +4,7 @@
  /* align-items: center;
  text-align: center;*/
   justify-content: center;
-  background-image: linear-gradient( #fac5de, rgb(248, 226, 233) 50%,#f7e4ed);
+  background-image: linear-gradient( #f49cc5, rgb(248, 226, 233) 50%,#f7e4ed);
 }
 
 .auth-form-container, .login-form, .register-form{
@@ -49,7 +49,13 @@ button {
   padding: 20px;
   border-radius: 10px;
   cursor: pointer;
-  color: grey;
+  color:#f49cc5;
+  font-weight: 500;
+  transition: all 0.5s ease;
+}
+button:hover {
+  background-color: gray;
+  color: white;
 }
 
 .link-btn {
@@ -192,7 +198,12 @@ button {
   margin: 20px auto;
 }
 .nav-bar-item.active {
-  background-color:    #fac5de ;
-  color: white;
+  background-color:  rgb(131, 128, 128);
+  color: #f49cc5;
+  font-weight: 700;
   text-decoration: underline;
+}
+.regular{
+  color:#787275;
+  font-weight: 500;
 }
