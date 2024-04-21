@@ -1,11 +1,53 @@
 import React, { useState } from 'react'
 import { Link, useParams } from 'react-router-dom';
+import Paginate from '../Pagination';
 
 const Documents = (props) => {
     const { department } = useParams();
     const [searchParam, setSearchParam] = useState('');
     const [isPdfChecked, setIsPdfChecked] = useState(true);
     const [isWordChecked, setIsWordChecked] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [postsPerPage] = useState(3);
+    const indexOfLastPost = currentPage * postsPerPage;
+    const indexOfFirstPost = indexOfLastPost - postsPerPage;
+    const departmentPosts = props.data.filter(post => post.department === department);
+    const [filteredDepartments, setFilteredDepartments] = useState(departmentPosts);
+    const currentPosts = filteredDepartments.slice(indexOfFirstPost, indexOfLastPost)
+
+    const previousPage = () => {
+        if (currentPage !== 1) {
+            setCurrentPage(currentPage - 1);
+        }
+    };
+
+    const nextPage = () => {
+        if (currentPage !== Math.ceil(filteredDepartments.length / postsPerPage)) {
+            setCurrentPage(currentPage + 1);
+        }
+    };
+
+    const paginate = (selected) => {
+        setCurrentPage(selected);
+    };
+
+    function pdfCheckboxChange(e) {
+        setIsPdfChecked((current) => !current);
+        if (e.target.checked) {
+            setFilteredDepartments(filteredDepartments.concat(departmentPosts.filter(document => document.format === 'pdf')));
+        } else {
+            setFilteredDepartments(filteredDepartments.filter(document => document.format !== 'pdf'))
+        }
+    }
+
+    function wordCheckboxChange(e) {
+        setIsWordChecked((current) => !current)
+        if (e.target.checked) {
+            setFilteredDepartments(filteredDepartments.concat(departmentPosts.filter(document => document.format === 'word')));
+        } else {
+            setFilteredDepartments(filteredDepartments.filter(document => document.format !== 'word'))
+        }
+    }
 
     return (
         <div>
@@ -22,18 +64,16 @@ const Documents = (props) => {
                         value={searchParam} onChange={(event) => setSearchParam(event.target.value)}
                     />
                     <input className='filter-docs-input' checked={isPdfChecked} type="checkbox"
-                        value="pdf" onChange={() => setIsPdfChecked((current) => !current)} />pdf
+                        value="pdf" onChange={pdfCheckboxChange} />pdf
                     <input className='filter-docs-input' checked={isWordChecked} type="checkbox"
-                        value="word" onChange={() => setIsWordChecked((current) => !current)} /> word
+                        value="word" onChange={wordCheckboxChange} /> word
                 </form>
                 <Link className='create-new-doc' to={"/documents/" + department + "/make"}><button>Create a document</button></Link>
             </div>
             <div className="all-documents">
-                {props.data.filter(document => document.department === department
+                {currentPosts.filter(document => document.department === department
                         && (document.title.toLowerCase().includes(searchParam.toLowerCase() )
                         || document.text.toLowerCase().includes(searchParam.toLowerCase() ))
-                        && (!isPdfChecked ? document.format !== 'pdf' : true)
-                        && (!isWordChecked ? document.format !== 'word' : true)
                     ).map(document => (
                             
                         <div className='card'>
@@ -48,6 +88,13 @@ const Documents = (props) => {
                         </div>
                    )) }
             </div>
+            <Paginate
+                postsPerPage={postsPerPage}
+                totalPosts={filteredDepartments.length}
+                paginate={paginate}
+                previousPage={previousPage}
+                nextPage={nextPage}
+            />
         </div>
 
 

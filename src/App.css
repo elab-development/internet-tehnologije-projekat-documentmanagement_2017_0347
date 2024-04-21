@@ -94,11 +94,11 @@ button:hover {
 }
 
 .nav-bar {
-  background-color: #2c2a2c;
+  background-color: #3d343a;
   overflow: hidden;
   margin: 5px 0;
 
-  box-shadow: #49353f;
+  box-shadow: #3f2d36;
 
 }
 
@@ -206,4 +206,37 @@ button:hover {
 .regular{
   color:#787275;
   font-weight: 500;
+}
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 50px;
+  gap: 20px;
+}
+
+.pagination .page-number {
+  font-size: 16px;
+  font-weight: 600;
+  color:#f49cc5;
+  background: whitesmoke;
+  padding: 10px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.5s ease;
+}
+
+.pagination .page-number:hover {
+ background: #3d343a;
+  color:#f49cc5;
+}
+
+.pagination .active {
+  background: gray;
+  color:#f49cc5;
+}
+
+.pagination .active:hover {
+  color:#f49cc5;
+  background: whitesmoke;
 }
