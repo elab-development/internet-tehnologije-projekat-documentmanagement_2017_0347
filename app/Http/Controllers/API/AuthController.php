@@ -57,14 +57,14 @@ class AuthController extends Controller
             return response()->json($validator->errors());
         }
         if (!Auth::attempt($request->only('email', 'password'))) {
-            return response()->json(['message' => 'Morate biti registrovani.'], 401);
+            return response()->json(['success' => false], 401);
         }
 
         $employee= Employee::where('email', $request['email'])->firstOrFail();
 
         $token = $employee->createToken('auth_token')->plainTextToken;
 
-        return response()->json(['message' => 'Uspesno ste se prijavili na server!', 'access_token' => $token, 'token_type' => 'Bearer']);
+        return response()->json(['success' => true, 'access_token' => $token, 'token_type' => 'Bearer']);
     }
 
     public function logout(Request $request)
