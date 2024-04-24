@@ -1,3 +1,4 @@
+import axios from 'axios';
 import React from 'react'
 import { useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom'
@@ -5,9 +6,9 @@ import { useLocation, useParams } from 'react-router-dom'
 
 const MakeDocument = (props) => {
 
-    const { id } = useParams();
+    const {department, id } = useParams();
  
-    const document = id !== undefined ? props.data.find(doc => doc.id == id) : null;
+    const document = id !== undefined ? id : null;
 
     const [title, setTitle] = useState(document ? document.title : '');
     const [date, setDate] = useState(document ? document.date : '2020-01-01');
@@ -19,22 +20,44 @@ const MakeDocument = (props) => {
         setTitle(event.target.value)
     }
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
+    const handleSubmit = async (e) => {
+        e.preventDefault();
         const newDocument = {
-            id: document !== null ? document.id : null,
-            title: title,
-            date: date,
-            text: text,
-            format: format,
-            department: location.pathname.split('/')[2],
-            employee: 1
-            // employee: props.userId mehanizam za usera u "bazi"
-        }
+                    id: document !== null ? document.id : null,// sta se desava sa id u bazi
+                    title: title,
+                    date: date,
+                    text: text,
+                    format: format,
+                    department: location.pathname.split('/')[2],
+                    employee:  props.userId 
+                }
+        const route = document !== null ? 
+                `api/documents/${department}/make`
+                : `api/documents/${department}/${document.id}/update`;
+        axios.post(route, newDocument)
+            .then(response => {
+                setIsDocumentCreated(true);
+            })
+            .catch(error => {
+                console.warn('error', error);
+            })
+    };
+    // const handleSubmit = (event) => {
+    //     event.preventDefault();
+    //     const newDocument = {
+    //         id: document !== null ? document.id : null,
+    //         title: title,
+    //         date: date,
+    //         text: text,
+    //         format: format,
+    //         department: location.pathname.split('/')[2],
+    //         employee: 1
+    //         // employee: props.userId mehanizam za usera u "bazi"
+    //     }
 
-        props.addDocument(newDocument);
-        setIsDocumentCreated(true);
-    }
+    //     props.addDocument(newDocument);
+    //     setIsDocumentCreated(true);
+    // }
 
 
     return (

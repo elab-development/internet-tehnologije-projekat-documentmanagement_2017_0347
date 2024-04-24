@@ -10,11 +10,14 @@ export const Register = (props) => {
     const [department, setDept] = useState('');
     const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit =(e) => {
         e.preventDefault();
-        props.registrate(name, email, pass,role,department); 
+        props.registrate(name, email, pass,role,department).then(
+            () => navigate('/')
+        ).catch((er) => {
+            console.log(er);
+        });
       //  props.authenticate(email,pass); 
-        navigate("/");
     }
 
     return(

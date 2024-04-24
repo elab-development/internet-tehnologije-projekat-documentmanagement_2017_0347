@@ -2,84 +2,74 @@ import React, { useState, useEffect } from "react";
 import './App.css';
 
 import { Home } from './Home';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Authentication from "./components/Authentication";
 import MakeDocument from "./components//Documents/MakeDocument";
-import { DOCUMENTS } from "./constants";
-import { EMPLOYEES } from "./constants";
 import Documents from "./components/Documents/Documents";
 import OneDocument from "./components/Documents/OneDocument";
-import uuid from 'react-uuid';
 import NavBar from "./components/NavBar";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import axios from "axios";
 
 function App() {
-
-  const [documents, setDocuments] = useState(DOCUMENTS);
-  const [employees, setEmployees] = useState(EMPLOYEES);
-  //za korisnike iz "baze"
   const [userId, setUserId] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isDocumentDeleted, setIsDocumentDeleted] = useState(false);
 
   useEffect(() => {
     if (isDocumentDeleted) {
-      setTimeout(() => {
-        setIsDocumentDeleted(false);
-      }, 5000)
-    }
-  }, [isDocumentDeleted]);
+      setTimeout(() => {setIsDocumentDeleted(false)}, 5000)} }, [isDocumentDeleted]);
 
-
-  const authenticate = (email, pass) => {
-    const user = employees.find(employee => employee.email === email && employees.password === pass);
-    if (user) {
-      setIsAuthenticated(true);
-      setUserId(user.id);
-    }
+  const authenticate = async (email, password) => {
+    try {
+      const response = await axios.post(
+        'api/login',
+        { email: email, password: password });
+      if (response.data.success) {
+        var authToken = response.data.access_token;
+        window.sessionStorage.setItem(
+          "auth_token",
+          authToken.slice(authToken.indexOf('|') + 1) );
+        setIsAuthenticated(true);
+        setUserId(response.data.empId);}
+    } catch (error) {throw error};
   }
-  const registrate = (emName, email, pass, role, department) => {
-    const user = employees.find(employee => employee.email === email && employees.password === pass);
-    const empl = {
-      id: uuid(),
+  
+  const registrate =async (emName, email, pass, role, department) => {
+   // Ako pstoji mejl u bazi change pass 
+   try {
+    const response = await axios.post('api/register',{
       name: emName,
       email: email,
       password: pass,
       role: role,
-      department: department
-    };
-    if (user) {
-      //vec postoji, povratak naloga
-    } else {
-      addEmployee(empl);
-      authenticate(empl.email, empl.password);
-
+     department_fk: department});
+      if(response) {
+        console.log(response.data);
+        var authToken = response.data.access_token;
+        if (response.data.success === true) {
+          window.sessionStorage.setItem(
+            "auth_token",
+            authToken.slice(authToken.indexOf('|') + 1) )}
+        setIsAuthenticated(true);
+        setUserId(response.data.empId);
+      }
+    }catch(error)  { throw error}
+        //console.warn('Couldnt authenticate user');  
     }
+  
+const changePass = (email, password) => {
+  axios.post(
+    'http://localhost:8000/api/changePassword', 
+    { email: email, password: password })
+    .then((response) => {
+    })
+      .catch(() => {
+        console.warn('Couldnt authenticate user');
+      });
   }
-
-  const addDocument = (document) => {
-    // setDocuments((oldDocuments)=>[...oldDocuments,document])
-    if (document.id === null) {
-      //dodavanje
-      setDocuments((oldDocuments) => [...oldDocuments, { ...document, id: uuid() }])
-    } else {
-      setDocuments(
-        (oldDocuments) => oldDocuments.map(element => {
-          if (element.id === document.id) {
-            return document;
-          }
-          return element;
-        })
-      )
-    }
-
-  }
-  const addEmployee = (employee) => {
-    setEmployees((oldEmployees) => [...oldEmployees, employee])
-  }
-  const deleteDocument = (documentId) => {
-    setDocuments((oldDocuments) => oldDocuments.filter((document) => document.id != documentId));
+  const deleteDocument= (documentId)=>{
     setIsDocumentDeleted(true);
   }
   return (
@@ -90,10 +80,10 @@ function App() {
           <NavBar />
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path='/login' element={<Authentication authenticate={authenticate} registrate={registrate} />} />
-            <Route path='/documents/:department' element={<Documents data={documents} isDocumentDeleted={isDocumentDeleted} />} />
-            <Route path='/documents/:department/make/:id?' element={<MakeDocument data={documents} addDocument={addDocument} userId={userId} />} />
-            <Route path='/document/:department/:id' element={<OneDocument deleteDocument={deleteDocument} dataDocs={documents} dataEmp={employees} />} />
+            <Route path='/login' element={<Authentication authenticate={authenticate} registrate={registrate} changePass={changePass} />}/>
+            <Route path='/documents/:department' element={<Documents  isDocumentDeleted={isDocumentDeleted} />} />
+            <Route path='/documents/:department/make/:id?' element={<MakeDocument  userId={userId} />} />
+            <Route path='/document/:department/:id' element={<OneDocument deleteDocument={deleteDocument} />} />
           </Routes>
           <Footer />
         </Router>
@@ -103,3 +93,55 @@ function App() {
 }
 
 export default App;
+// <Header token ={token}/>
+
+// const addDocument = (document) => {
+  //   // setDocuments((oldDocuments)=>[...oldDocuments,document])
+  //   if (document.id === null) {
+    //     //dodavanje
+    //     setDocuments((oldDocuments) => [...oldDocuments, { ...document, id: uuid() }])
+    //   } else {
+      //     setDocuments(
+    //       (oldDocuments) => oldDocuments.map(element => {
+      //         if (element.id === document.id) {
+        //           return document;
+        //         }
+        //         return element;
+        //       })
+        //     )
+        //   }
+        // const addEmployee = (employee) => {
+          //   setEmployees((oldEmployees) => [...oldEmployees, employee])
+          // }
+          // const deleteDocument = (documentId) => {
+    //   setDocuments((oldDocuments) => oldDocuments.filter((document) => document.id != documentId));
+    //   setIsDocumentDeleted(true);
+  // }
+    // const [documents, setDocuments] = useState(DOCUMENTS);
+    // const [employees, setEmployees] = useState(EMPLOYEES);
+    // {
+    //   headers: {
+    //     'X-CSRF-TOKEN': document.head.querySelector('meta[name="csrf-token"]')
+    //   }
+    // })
+    // then((response) => {
+      //   // console.log(response.data);
+    //   if (response.data.success) {
+      //     var authToken = response.data.access_token;
+      //     window.sessionStorage.setItem(
+        //       "auth_token",
+        //       authToken.slice(authToken.indexOf('|') + 1)
+        //     );
+        //     setIsAuthenticated(true);
+        //     setUserId(response.data.empId);
+        //   }
+        // })
+        //   .catch((error) => {
+          //     //console.warn('Couldnt authenticate user');
+          //     console.log(error);
+          //   }); <Route path="/" element={<Home />} />
+            // <Route path='/login' element={<Authentication authenticate={authenticate} registrate={registrate} changePass={changePass} />}/>
+            // <Route path='/documents/:department' element={<Documents data={documents} isDocumentDeleted={isDocumentDeleted} />} />
+            // <Route path='/documents/:department/make/:id?' element={<MakeDocument data={documents} addDocument={addDocument} userId={userId} />} />
+            // <Route path='/document/:department/:id' element={<OneDocument deleteDocument={deleteDocument} dataDocs={documents} dataEmp={employees} />} />
+         
