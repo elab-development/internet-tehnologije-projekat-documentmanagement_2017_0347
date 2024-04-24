@@ -26,11 +26,11 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors());
+            return response()->json([ 'success' => false,$validator->errors()]);
         }
 
         if($request->role == 'admin' && $request->department_fk != 4){
-            return response()->json(['message' => 'Uloga administratora se ne dodeljuje clanovima ovog odeljenja.'], 403);
+            return response()->json(['success' => false,'message' => 'Uloga administratora se ne dodeljuje clanovima ovog odeljenja.'], 403);
         }
         
         $employee = Employee::create([
@@ -43,7 +43,7 @@ class AuthController extends Controller
 
         $token = $employee->createToken('auth_token')->plainTextToken;
 
-        return response()->json(['data' => $employee, 'access_token' => $token, 'token_type' => 'Bearer']);
+        return response()->json(['success' => true,'empId' => $employee->id, 'access_token' => $token, 'token_type' => 'Bearer']);
     }
 
     public function login(Request $request)
@@ -57,14 +57,14 @@ class AuthController extends Controller
             return response()->json($validator->errors());
         }
         if (!Auth::attempt($request->only('email', 'password'))) {
-            return response()->json(['success' => false], 401);
+            return response()->jsopn(['success' => false], 401);
         }
 
         $employee= Employee::where('email', $request['email'])->firstOrFail();
 
         $token = $employee->createToken('auth_token')->plainTextToken;
 
-        return response()->json(['success' => true, 'access_token' => $token, 'token_type' => 'Bearer']);
+        return response()->json(['success' => true, 'empId'=>$employee->id ,'access_token' => $token, 'token_type' => 'Bearer']);
     }
 
     public function logout(Request $request)
