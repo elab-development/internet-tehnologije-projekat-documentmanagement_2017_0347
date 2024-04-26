@@ -21,7 +21,8 @@ class DocumentResource extends JsonResource
             'text' => $this->resource->text,
             'format' => $this->resource->format,
             'employee_fk' => $this->resource->employee_fk,
-            'department_fk'=> $this->resource->department_fk
+            'department_fk'=> $this->resource->department_fk,
+            'path' => $this->resource->path
         ];
     }
 }

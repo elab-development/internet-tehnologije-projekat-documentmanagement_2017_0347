@@ -18,6 +18,7 @@ use App\Http\Controllers\DocumentController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::get('/departments', [DocumentController::class, 'getAllDepartments']);
 
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
