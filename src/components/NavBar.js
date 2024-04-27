@@ -1,31 +1,15 @@
-import React, {useState, useEffect} from 'react'
 import { NavLink } from 'react-router-dom'
-import axios from 'axios'
 
-const NavBar = () =>{
-
-  const [departments, setDepts] = useState([]);
-  
-  useEffect(() => {
-    loadDepts(); 
-}, []);
-
-const loadDepts = async () => {
-  try {
-      const response = await axios.get('api/departments');
-      setDepts(response.data);
-  } catch (error) {
-      console.log(error);
-  }}
+const NavBar = ({departments}) =>{
   return (
     <div class="nav-bar">
-        <NavLink className="nav-bar-item" to="/">HOME</NavLink>
+        <NavLink className="nav-bar-item" to="/">Home</NavLink>
         {departments.map(element => 
-        <NavLink className="nav-bar-item" key={element.id} value={element.id} to={`/documents/${element.name}`  }>{element.name.toUpperCase() }</NavLink>)}
+        <NavLink className="nav-bar-item" key={element.id} value={element.id} to={`/documents/${element.name}`  }>
+          {element.name.charAt(0).toUpperCase()+ element.name.slice(1) }</NavLink>)}
     </div>
   )
 }
-
 export default NavBar
 {/*  value={element.id}
 <NavLink className="nav-bar-item" to="/documents/hr">HR</NavLink>

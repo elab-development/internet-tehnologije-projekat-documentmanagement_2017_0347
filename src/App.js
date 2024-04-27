@@ -129,7 +129,7 @@ const changePass = (email, password) => {
       {
         <Router>
           <Header />
-          <NavBar />
+          <NavBar departments={departments} />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path='/login' element={<Authentication authenticate={authenticate} registrate={registrate} changePass={changePass} />}/>
