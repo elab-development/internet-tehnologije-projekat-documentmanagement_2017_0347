@@ -5,6 +5,8 @@ import axios from 'axios';
 
 const Documents = (props) => {
     const { department } = useParams();
+    //const[currentDepartment,setCurrentDepartment]=useState(department);
+
     const [searchParam, setSearchParam] = useState('');
     const [isPdfChecked, setIsPdfChecked] = useState(true);
     const [isWordChecked, setIsWordChecked] = useState(true);
@@ -14,6 +16,7 @@ const Documents = (props) => {
     const indexOfFirstDoc = indexOfLastDoc - docsPerPage;
     const [departmentDocs, setDepartmentDocs] = useState([]);
     const [filteredDocuments, setFilteredDocuments] = useState(departmentDocs);
+    const [error, setError] =  useState('');
     // const currentDocs = departmentDocs.slice(indexOfFirstDoc, indexOfLastDoc);
 
     // axios.get(`documents/${department}`)
@@ -22,6 +25,8 @@ const Documents = (props) => {
     //     })
 
     useEffect(() => {
+        // if (dept != department){
+        //     setDepartment(dept);}
         axios.get(`api/documents/${department}`,
             {
                 headers: {
@@ -33,6 +38,7 @@ const Documents = (props) => {
             })
             .catch(error => {
                 console.log('error', error);
+                setError('Only authorized users can view this content.')
             })
 
     }, [department]);
@@ -92,8 +98,9 @@ const Documents = (props) => {
                 </form>
                 <Link className='create-new-doc' to={"/documents/" + department + "/make"}><button>Create a document</button></Link>
             </div>
+            {error && (<div>{error}</div>)}
+            <div>lalal</div>
             {
-                departmentDocs != null ?
                     <div className="all-documents">
                         {departmentDocs.filter(document => document.title.toLowerCase().includes(searchParam.toLowerCase())
                             || document.text.toLowerCase().includes(searchParam.toLowerCase())
@@ -105,13 +112,12 @@ const Documents = (props) => {
                                 {new Date(document.date).toLocaleDateString()}
                                 <br />
                                 {document.text.substring(0, 35)}...
-                                <Link className="regular" to={"/document/" + document.department + "/" + document.id}>
+                                <Link className="regular" to={"/document/" + department + "/" + document.id}>
                                     View more
                                 </Link>
                             </div>
                         ))}
-                    </div>
-                    : <></>
+                    </div>     
             }
             {/* <Paginate
                 docsPerPage={docsPerPage}
@@ -121,8 +127,6 @@ const Documents = (props) => {
                 nextPage={nextPage}
             /> */}
         </div>
-
-
     )
 }
 

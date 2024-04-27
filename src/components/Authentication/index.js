@@ -11,7 +11,7 @@ const Authentication = ({authenticate, registrate,changePass})=>{
     }
     return (<>
       {currentForm === 'login' &&  <Login  onFormSwitch = {toggleForm} authenticate={authenticate}/> }
-      {currentForm === 'register' &&  <Register onFormSwitch = {toggleForm} registrate={registrate} authenticate={authenticate}/>}
+      {currentForm === 'register' &&  <Register onFormSwitch = {toggleForm} registrate={registrate} />}
       {currentForm === 'change-pass' &&  <ChangePassword onFormSwitch = {toggleForm} changePass={changePass} />}
       </>)
 }

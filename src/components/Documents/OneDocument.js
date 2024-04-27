@@ -3,23 +3,22 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 
 const OneDocument = (props) => {
-    const { id, department } = useParams();
+    const { department, id } = useParams();
     const navigate = useNavigate();
-    const[document,setDocument]=useState(null);
-
-    // const document = props.dataDocs.find(element => element.id == id)
-    // const employee = props.dataEmp.find(element => element.id == document.employee)
+    const[document,setDocument]=useState({});
 
     const handleDelete = () => {
-        props.deleteDocument(id);
+        props.deleteDocument(id,department);
         navigate('/documents/' + department);
     }
 
     useEffect(() => {
-             axios.get(`api/documents/${department}/${id}`)
+             axios.get(`api/documents/${department}/${id}`, {headers: {
+                'Authorization': `Bearer ${window.sessionStorage.getItem("auth_token")}`}
+            })
             .then(response => {
-                console.log('res', response.data.data);
-                setDocument(document); 
+                console.log('res', response.data);
+                setDocument(response.data.data); 
             })
             .catch(error => {
                 console.log('Error: ', error); }); 
@@ -39,14 +38,12 @@ const OneDocument = (props) => {
             <br />
             <br />
             <div className="change-buttons">
-                <Link to={"/documents/" + document.department + "/make/" + id}>
+                <Link to={"/documents/" + department + "/make/" + id}>
                     <button >Edit document</button>
                 </Link>
                 <button className="delete-button" onClick={handleDelete}>Delete document</button>
             </div>
         </div>
     )
-
 }
-
 export default OneDocument;

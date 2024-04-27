@@ -16,6 +16,53 @@ function App() {
   const [userId, setUserId] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isDocumentDeleted, setIsDocumentDeleted] = useState(false);
+  const [departments, setDepts] = useState([]);
+  const[employees, setEmployees] = useState([]);
+  const [tags, setTags] = useState([]);
+  const [docutags, setDocutags] = useState([]);
+  
+  useEffect(() => {
+    loadDepts(); 
+}, []);
+//hoce li vratiti i novo  registrovanog
+useEffect(() => {
+  loadEmployees(); 
+}, []);
+useEffect(() => {
+  loadTags(); 
+}, []);
+useEffect(() => {
+  loadDocutags(); 
+}, []);
+const loadDepts = async () => {
+  try {
+      const response = await axios.get('api/departments');
+      setDepts(response.data);
+  } catch (error) {
+      console.log(error);
+  }}
+  const loadEmployees = async () => {
+    try {
+        const response = await axios.get('api/employees');
+        setEmployees(response.data);
+    } catch (error) {
+        console.log(error);
+    }}
+    const loadTags = async () => {
+      try {
+          const response = await axios.get('api/tags');
+          setTags(response.data);
+      } catch (error) {
+          console.log(error);
+      }}
+      const loadDocutags = async () => {
+        try {
+            const response = await axios.get('api/tags');
+            setDocutags(response.data);
+        } catch (error) {
+            console.log(error);
+        }}
+ 
 
   useEffect(() => {
     if (isDocumentDeleted) {
@@ -69,7 +116,12 @@ const changePass = (email, password) => {
         console.warn('Couldnt authenticate user');
       });
   }
-  const deleteDocument= (documentId)=>{
+  const deleteDocument= (documentId,department)=>{
+    axios.delete(`api/documents/${department}/${documentId}/delete`,{ headers: {
+      'Authorization': `Bearer ${window.sessionStorage.getItem("auth_token")}`}
+  }).then((response)=>{
+      
+    })
     setIsDocumentDeleted(true);
   }
   return (
