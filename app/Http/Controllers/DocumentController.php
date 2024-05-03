@@ -17,14 +17,14 @@ use PhpOffice\PhpWord\IOFactory;
 use Illuminate\Support\Facades\Storage;
 use Dompdf\Dompdf;
 use Smalot\PdfParser\Parser;
-
+use GuzzleHttp\Client; 
 class DocumentController extends Controller
 {
 
     public function getAllDepartments(){
         $departments = Department::all();
         if (empty($departments)) {
-            return response()->json(['message' => 'Nema odeljenja.'], 404);
+            return response()->json(['message' => 'No departments.']);
         }
         return $departments;
     }
@@ -33,7 +33,7 @@ class DocumentController extends Controller
     {
         $departments = Department::all();
         if (empty($departments)) {
-            return response()->json(['message' => 'Nema odeljenja.'], 404);
+            return response()->json(['message' => 'No departments.']);
         }
         $dept_id = 0;
         foreach ($departments as $dept) {
@@ -44,7 +44,7 @@ class DocumentController extends Controller
         }
         $documents = Document::all();
         if (empty($documents)) {
-            return response()->json(['data' => []], 200);
+            return response()->json(['data' => []]);
         }
         $documentsfromDept = collect(new Document());
         foreach ($documents as $doc) {
@@ -52,7 +52,7 @@ class DocumentController extends Controller
                 $documentsfromDept->push($doc);
         }
         if ($documentsfromDept->isEmpty()) {
-            return response()->json(['data'=> []], 200);
+            return response()->json(['data'=> []]);
         }
         return DocumentResource::collection($documentsfromDept);
     }
@@ -61,7 +61,7 @@ class DocumentController extends Controller
     {
         $documents = $this->getAllDocumentsFromDepartment($name);
         if (empty($documents)) {
-            return response()->json(['message' => 'Nema dokumenata u ovom odeljenju.'], 200);
+            return response()->json(['message' => 'There are no documents in this department.']);
         }
 
         foreach ($documents as $doc) {
@@ -81,14 +81,14 @@ class DocumentController extends Controller
             }
         }
 
-        return response()->json(['message' => 'Nema tog dokumenta u ovom odeljenju.'], 404);
+        return response()->json(['message' => 'Document succesfully loaded.']);
     }
 
-    public function makeDocument(Request $request, $name)
+    public function uploadDocument(Request $request, $name)
     {
         $departments = Department::all();
         if (empty($departments)) {
-            return response()->json(['message' => 'Nema odeljenja.'], 404);
+            return response()->json(['message' => 'No departments exist.']);
         }
 
         $department_fk = 0;
@@ -98,7 +98,96 @@ class DocumentController extends Controller
                 break;
             }
         }
+        if ($request->user()->role == 'admin' || $request->user()->department_fk == $department_fk) {
+            $request->validate([
+                'file' => 'required|file',
+            ]);
+            $file = $request->file('file');
+            if ($file->isValid()) {
+                $originalFileName = $file->getClientOriginalName();
+                $existingFiles = Storage::files('uploads');
+                $newFileName = $originalFileName;
+                $i = 1;
+                while (in_array("uploads/$newFileName", $existingFiles)) {
+                    $extension = $file->getClientOriginalExtension();
+                    $fileNameWithoutExtension = pathinfo($originalFileName, PATHINFO_FILENAME);
+                    $newFileName = $fileNameWithoutExtension . '_' . $i . '.' . $extension;
+                    $i++;
+                }
+                $path = $file->storeAs('uploads', $newFileName);
+            } else {
+                return response()->json(['message' => 'File is not valid.']);
+            }
+            $path = str_replace('/', '\\', $path);
+            $employee = auth()->user();
+            $departments = Department::all();
+            $department_fk = 0;
+            foreach ($departments as $d) {
+                if ($d->name == $name) {
+                    $department_fk = $d->id;
+                    break;
+                }
+            }
+            $extension = pathinfo($path, PATHINFO_EXTENSION);
+            if($extension === 'doc' || $extension === 'docx'){
+                $format = 'word';
+            }
+            elseif ($extension === 'pdf') {
+                $format = 'pdf';
+            }else{
+                return response()->json(['message' => 'Check document format.']); 
+            }
+            $preview = Storage::get($path);
+            $base64Preview = base64_encode($preview);
+            $dirtyFileName = $request->file('file')->getClientOriginalName();
+            $cleanFileName = pathinfo($dirtyFileName, PATHINFO_FILENAME);
+                Document::create([
+                    'title' => $cleanFileName,
+                    'date' => Carbon::now(),
+                    'preview' =>substr($base64Preview,0,80),
+                    'format' => $format,
+                    'employee_fk' => $employee -> id,
+                    'department_fk' => $department_fk,
+                    'path' => $path
+                ]);
+                return response()->json(['message' => 'Document successfully uploaded.']);
+        } else {
+            return response()->json(['message' => 'You do not have the privilege to upload this document.']);
+        }
+    }
 
+    public function downloadDocument(Request $request, $name, $id)
+    {
+        $document = Document::where('id', $id)->first();
+        if (!$document) {
+            return response()->json(['message' => 'Document not found.']);
+        }
+        $basePath = 'C:/xampp/htdocs/laravel domaci/internet-tehnologije-projekat-documentmanagement_2017_0347/storage/app/';
+        $filePath = $basePath . $document->path;
+        if (!Storage::disk('local')->exists($document->path)) {
+            return response()->json(['message' => 'File not found.'], 404);
+        }
+        $fileName = basename($filePath);
+        //$downloadPath = 'C:/xampp/htdocs/laravel domaci/internet-tehnologije-projekat-documentmanagement_2017_0347/storage/app/downloads/' . $fileName;
+        return response()->download($filePath, $fileName);
+    }
+
+
+    public function makeDocument(Request $request, $name)
+    {
+        $departments = Department::all();
+        if (empty($departments)) {
+            return response()->json(['message' => 'No departments exist.']);
+        }
+
+        $department_fk = 0;
+        foreach ($departments as $d) {
+            if ($d->name == $name) {
+                $department_fk = $d->id;
+                break;
+            }
+        }
+        if ($request->user()->role == 'admin' || $request->user()->department_fk == $department_fk) {
         $format_values = ['pdf', 'word'];
         $validator = Validator::make($request->all(), [
             'title' => 'required',
@@ -110,7 +199,7 @@ class DocumentController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['message' => 'Proverite da li ste popunili sva polja i da li je format ispravno unesen.'], 422);
+            return response()->json(['message' => 'Check if all fields are filled and if format field is in the correct format.']);
         }
 
         $employee = auth()->user();
@@ -154,40 +243,11 @@ class DocumentController extends Controller
                 'department_fk' => $department_fk,
                 'path' => $pdfPath
             ]);}
-
-
-        return response()->json(['message' => 'Dokument uspesno napravljen.', 200]);
-    }
-    /*
-    public function getFile(Request $request, $id){
-        $document = Document::where('id', $id)->first();
-        $title = $document -> title;
-        if(request('format') == 'word'){
-            $filePath = storage_path('app/public/') . $title . '.docx';
-            return $filePath;
-            $phpWord = IOFactory::load($filePath);
-            $sections = $phpWord->getSections();
-            foreach ($sections as $section) {
-                $elements = $section->getElements();
-                foreach ($elements as $element) {
-                    if ($element instanceof \PhpOffice\PhpWord\Element\TextRun) {
-                        $textWord = $element->getText();
-                    }
-                }
-            }
-        }else{
-            $pdfPath = 'public/' . request('title');
-            $parser = new Parser();
-            $pdf = $parser->parseFile($pdfPath);
-            $pages = $pdf->getPages();
-            $pdfText = '';
-            foreach ($pages as $page) {
-                $pdfText .= $page->getText();
-            }
-            $document -> text = $pdfText;
+        return response()->json(['message' => 'Document successfuly created.']);
+        } else {
+            return response()->json(['message' => 'You do not have the privilege to make this document.']);
         }
     }
-    */
 
     public function updateDocument(Request $request ,$id)
     {
@@ -206,7 +266,7 @@ class DocumentController extends Controller
                 ]);
 
                 if ($validator->fails()) {
-                    return response()->json(['message' => 'Proverite da li ste popunili sva polja i da li je format ispravno unesen.'], 422);
+                    return response()->json(['message' => 'Check if all fields are filled and if format field is in the correct format.']);
                 }
 
                 if (request('format') == 'word') {
@@ -239,12 +299,12 @@ class DocumentController extends Controller
                 $document->text = $request->text;
                 $document->update();
 
-                return response()->json(['message' => 'Dokument uspesno izmenjen.', 200]);
+                return response()->json(['message' => 'Document successfully updated.']);
             } else {
-                return response()->json(['message' => 'Ne mozete menjati ovaj dokument.', 403]);
+                return response()->json(['message' => 'You do not have the right privilege to update the document.']);
             }
         } else {
-            return response()->json(['message' => 'Dokument ne postoji.', 404]);
+            return response()->json(['message' => 'Document does not exist.']);
         }
     }
 
@@ -265,15 +325,15 @@ class DocumentController extends Controller
                 if (file_exists($cleanedPath)) {
                     unlink($filePath);
                     $document->delete();
-                    return response()->json(['message' => 'Dokument uspesno izbrisan.', 200]);
+                    return response()->json(['message' => 'Document successfully deleted.']);
                 }else{
-                    return response()->json(['message' => 'Dokument nije uspesno izbrisan.', 200]);
+                    return response()->json(['message' => 'Document is not deleted.']);
                 }
             } else {
-                return response()->json(['message' => 'Ne mozete brisati ovaj dokument.', 200]);
+                return response()->json(['message' => 'You do not have the privilege to delete this document.']);
             }
         } else {
-            return response()->json(['message' => 'Dokument ne postoji.', 200]);
+            return response()->json(['message' => 'Document does not exist.']);
         }
     }
 
@@ -284,7 +344,7 @@ class DocumentController extends Controller
 
         $departments = Department::all();
         if (empty($departments)) {
-            return response()->json(['message' => 'Nema odeljenja.'], 404);
+            return response()->json(['message' => 'No departments.']);
         }
         $dept_id = 0;
         foreach ($departments as $dept) {
@@ -296,7 +356,7 @@ class DocumentController extends Controller
 
         $documents = Document::all();
         if (empty($documents)) {
-            return response()->json(['message' => 'Nema dokumenata.'], 404);
+            return response()->json(['message' => 'No documents.']);
         }
 
         $documentsfromDept = collect(new Document());
@@ -305,12 +365,12 @@ class DocumentController extends Controller
                 $documentsfromDept->push($doc);
         }
         if (empty($documentsfromDept)) {
-            return response()->json(['message' => 'Nema dokumenata u ovom odeljenju.'], 404);
+            return response()->json(['message' => 'No documents in this department.']);
         }
 
         $tags = Tag::all();
         if ($tags->isEmpty()) {
-            return response()->json(['message' => 'Nema tagova.'], 404);
+            return response()->json(['message' => 'No tags.']);
         }
         $tag_id = 0;
         foreach ($tags as $t) {
@@ -322,7 +382,7 @@ class DocumentController extends Controller
 
         $docu_tags = DocuTag::all();
         if ($docu_tags->isEmpty()) {
-            return response()->json(['message' => 'Nema trazenog taga za dokument.'], 404);
+            return response()->json(['message' => 'No tags that match this document.']);
         }
         $documentsfromDeptWithFilter = collect(new Document());
         foreach ($docu_tags as $dt) {
@@ -333,7 +393,7 @@ class DocumentController extends Controller
             }
         }
         if ($documentsfromDeptWithFilter->isEmpty()) {
-            return response()->json(['message' => 'Nema dokumenata sa tim tagom u ovom odeljenju.'], 404);
+            return response()->json(['message' => 'No documents with this tag in this department.']);
         }
 
         return DocumentResource::collection($documentsfromDeptWithFilter);
@@ -345,7 +405,7 @@ class DocumentController extends Controller
 
         $departments = Department::all();
         if ($departments->isEmpty()) {
-            return response()->json(['message' => 'Nema odeljenja.'], 404);
+            return response()->json(['message' => 'No departments.']);
         }
         $dept_id = 0;
         foreach ($departments as $dept) {
@@ -358,7 +418,7 @@ class DocumentController extends Controller
         $documents = Document::where('title', 'like', "%{$search}%")->orWhere('text', 'like', "%{$search}%")->get();
         //return $documents;
         if ($documents->isEmpty()) {
-            return response()->json(['message' => 'Nema dokumenata.'], 404);
+            return response()->json(['message' => 'No documents.']);
         }
 
         $documentsfromDept = collect(new Document());
@@ -367,7 +427,7 @@ class DocumentController extends Controller
                 $documentsfromDept->push($doc);
         }
         if ($documentsfromDept->isEmpty()) {
-            return response()->json(['message' => 'Nema dokumenata u ovom odeljenju sa tom pretragom.'], 404);
+            return response()->json(['message' => 'No documents in this department that match the tag.']);
         }
 
         return DocumentResource::collection($documentsfromDept);
