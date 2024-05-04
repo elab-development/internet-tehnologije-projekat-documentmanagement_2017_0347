@@ -137,7 +137,7 @@ class DocumentController extends Controller
             }else{
                 return response()->json(['message' => 'Check document format.']); 
             }
-            $preview = Storage::get($path);
+            $preview = Storage::get($path, 'UTF-8');
             $base64Preview = base64_encode($preview);
             $dirtyFileName = $request->file('file')->getClientOriginalName();
             $cleanFileName = pathinfo($dirtyFileName, PATHINFO_FILENAME);
@@ -172,7 +172,7 @@ class DocumentController extends Controller
         return response()->download($filePath, $fileName);
     }
 
-
+    /*
     public function makeDocument(Request $request, $name)
     {
         $departments = Department::all();
@@ -188,67 +188,68 @@ class DocumentController extends Controller
             }
         }
         if ($request->user()->role == 'admin' || $request->user()->department_fk == $department_fk) {
-        $format_values = ['pdf', 'word'];
-        $validator = Validator::make($request->all(), [
-            'title' => 'required',
-            'text' => 'required',
-            'format' => [
-                'required',
-                Rule::in($format_values)
-            ]
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['message' => 'Check if all fields are filled and if format field is in the correct format.']);
-        }
-
-        $employee = auth()->user();
-        $employee_fk = $employee->id;
-        $date = Carbon::now();
-        $filePath = null;
-
-        if (request('format') == 'word') {
-            $phpWord = new PhpWord();
-            $section = $phpWord->addSection();
-            $phpWord->addTitle(request('title'));
-            $section->addText(request('text'));
-
-            $filePath = storage_path('app/public/') . request('title') . '.docx';
-            $phpWord->save($filePath, 'Word2007');
-            Document::create([
-                'title' => request('title'),
-                'date' => $date,
-                'text' =>substr(request('text'),0, 80) ,
-                'format' => request('format'),
-                'employee_fk' => $employee_fk,
-                'department_fk' => $department_fk,
-                'path' => $filePath
+            $format_values = ['pdf', 'word'];
+            $validator = Validator::make($request->all(), [
+                'title' => 'required',
+                'text' => 'required',
+                'format' => [
+                    'required',
+                    Rule::in($format_values)
+                ]
             ]);
-        } else {
-            $title = $request->input('title');
-            $text = $request->input('text');
-            $html = "<h1>$title</h1><p>$text</p>";
-            $dompdf = new Dompdf();
-            $dompdf->loadHtml($html);
-            $dompdf->render();
-            $pdfContent = $dompdf->output();
-            $pdfPath = storage_path('app/public/') . $title . '.pdf';
-            file_put_contents($pdfPath, $pdfContent);
-            Document::create([
-                'title' => request('title'),
-                'date' => $date,
-                'text' =>substr(request('text'),0, 80) ,
-                'format' => request('format'),
-                'employee_fk' => $employee_fk,
-                'department_fk' => $department_fk,
-                'path' => $pdfPath
-            ]);}
-        return response()->json(['message' => 'Document successfuly created.']);
+
+            if ($validator->fails()) {
+                return response()->json(['message' => 'Check if all fields are filled and if format field is in the correct format.']);
+            }
+
+            $employee = auth()->user();
+            $employee_fk = $employee->id;
+            $date = Carbon::now();
+            $filePath = null;
+
+            if (request('format') == 'word') {
+                $phpWord = new PhpWord();
+                $section = $phpWord->addSection();
+                $phpWord->addTitle(request('title'));
+                $section->addText(request('text'));
+
+                $filePath = storage_path('app/public/') . request('title') . '.docx';
+                $phpWord->save($filePath, 'Word2007');
+                Document::create([
+                    'title' => request('title'),
+                    'date' => $date,
+                    'text' =>substr(request('text'),0, 80) ,
+                    'format' => request('format'),
+                    'employee_fk' => $employee_fk,
+                    'department_fk' => $department_fk,
+                    'path' => $filePath
+                ]);
+            } else {
+                $title = $request->input('title');
+                $text = $request->input('text');
+                $html = "<h1>$title</h1><p>$text</p>";
+                $dompdf = new Dompdf();
+                $dompdf->loadHtml($html);
+                $dompdf->render();
+                $pdfContent = $dompdf->output();
+                $pdfPath = storage_path('app/public/') . $title . '.pdf';
+                file_put_contents($pdfPath, $pdfContent);
+                Document::create([
+                    'title' => request('title'),
+                    'date' => $date,
+                    'text' =>substr(request('text'),0, 80) ,
+                    'format' => request('format'),
+                    'employee_fk' => $employee_fk,
+                    'department_fk' => $department_fk,
+                    'path' => $pdfPath
+                ]);}
+            return response()->json(['message' => 'Document successfuly created.']);
         } else {
             return response()->json(['message' => 'You do not have the privilege to make this document.']);
         }
     }
 
+    
     public function updateDocument(Request $request ,$id)
     {
         $document = Document::where('id', $id)->first();
@@ -307,27 +308,81 @@ class DocumentController extends Controller
             return response()->json(['message' => 'Document does not exist.']);
         }
     }
+    */
+
+    public function renameDocument(Request $request, $name, $id){
+        $document = Document::where('id', $id)->first();
+        $title = $document -> title;
+        $path = $document->path;
+        if ($document) {
+            if ($request->user()->role == 'admin' || $document->employee_fk == $request->user()->id) {
+                $validator = Validator::make($request->only('title'), [
+                    'title' => 'required'
+                ]);
+
+                if ($validator->fails()) {
+                    return response()->json(['message' => 'Check if title field is filled.']);
+                }
+
+                if ($document -> format == 'word') {
+                    $filePath = storage_path('app/uploads/') . $title . '.docx';
+                    $filePath = str_replace('/', '\\', $filePath);
+                    $phpWord = IOFactory::load($filePath);
+                    $phpWord->addTitle(request('title'));
+                    $newFilePath = storage_path('app/uploads/') . request('title'). '.docx';
+                    Storage::delete($path);
+                    $path = 'uploads\\' . request('title') . '.docx';
+                    $phpWord->save($newFilePath, 'Word2007');
+                } else {
+                    $pdfPath = 'public/' . request('title');
+                    $pdfContent = Storage::get($pdfPath);
+                    $newTitle = $request->title;
+                    $html = "<h1>$newTitle</h1>";
+                    $dompdf = new Dompdf();
+                    $dompdf->loadHtml($pdfContent);
+                    $dompdf->loadHtml($html);
+                    $dompdf->render();
+                    $newPdfContent = $dompdf->output();
+                    $pdfPath = storage_path('app/uploads/') . $newTitle . '.pdf';
+                    Storage::delete($path);
+                    $path = 'uploads\\'. $newTitle . 'pdf';
+                    file_put_contents($pdfPath, $newPdfContent);
+                }
+
+                $date = Carbon::now();
+                $document->title = $request->title;
+                $document->date = $date;
+                $document->path = $path;
+                $document->update();
+
+                return response()->json(['message' => 'Document title successfully updated.']);
+            } else {
+                return response()->json(['message' => 'You do not have the right privilege to update document title.']);
+            }
+        } else {
+            return response()->json(['message' => 'Document does not exist.']);
+        }
+    }
 
     
     public function deleteDocument(Request $request, $name, $id)
     {
         $document = Document::where('id', $id)->first();
-        $filePath = '';
         if($document->format == 'pdf'){
-            $filePath = storage_path('app/public/') . $document -> title . '.pdf';
+            $filePath = 'uploads/'. $document -> title . '.pdf';
         }else{
-            $filePath = storage_path('app/public/') . $document -> title . '.docx';
+            $filePath = 'uploads/'. $document -> title . '.docx';
         }
         $cleanedPath = str_replace('\\\\', '\\', $filePath);
         $cleanedPath = str_replace('/', '\\', $cleanedPath);
         if ($document) {
             if ($request->user()->role == 'admin' || $document->employee_fk == $request->user()->id) {
-                if (file_exists($cleanedPath)) {
-                    unlink($filePath);
+                if (Storage::exists($cleanedPath)) {
+                    Storage::delete($cleanedPath);
                     $document->delete();
                     return response()->json(['message' => 'Document successfully deleted.']);
                 }else{
-                    return response()->json(['message' => 'Document is not deleted.']);
+                    return response()->json(['message' => 'Document is not successfully deleted.']);
                 }
             } else {
                 return response()->json(['message' => 'You do not have the privilege to delete this document.']);
@@ -416,7 +471,6 @@ class DocumentController extends Controller
         }
 
         $documents = Document::where('title', 'like', "%{$search}%")->orWhere('text', 'like', "%{$search}%")->get();
-        //return $documents;
         if ($documents->isEmpty()) {
             return response()->json(['message' => 'No documents.']);
         }
@@ -432,6 +486,7 @@ class DocumentController extends Controller
 
         return DocumentResource::collection($documentsfromDept);
     }
+
     /**
      * Display a listing of the resource.
      */
@@ -487,4 +542,5 @@ class DocumentController extends Controller
     {
         //
     }
+
 }
