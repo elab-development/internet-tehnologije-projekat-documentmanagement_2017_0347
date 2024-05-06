@@ -12,7 +12,7 @@ const MakeDocument = (props) => {
 
     const [title, setTitle] = useState('');
     const [date, setDate] = useState('2020-01-01');
-    const [text, setText] = useState('');
+    const [preview, setPreview] = useState('');
     const [format, setFormat] = useState('');
     const [isDocumentCreated, setIsDocumentCreated] = useState(false);
     const location = useLocation();
@@ -32,7 +32,7 @@ const MakeDocument = (props) => {
                 setTitle(document.title);
                 setDate(document.date);
                 setFormat(document.format);
-                setText(document.text);
+                setPreview(document.preview);
             })
             .catch(error => {
                 console.log('Error: ', error); });
@@ -46,7 +46,7 @@ const MakeDocument = (props) => {
                    id: document != null ? document.id : null,// sta se desava sa id u bazi
                     title: title,
                     date: date,
-                    text: text,
+                    preview:preview,
                     format: format,
                     department: location.pathname.split('/')[2],
                     employee:  props.userId 
@@ -67,7 +67,7 @@ const MakeDocument = (props) => {
     const randomizeDocumentText = () => {
         axios.get('https://baconipsum.com/api/?type=meat-and-filler')
             .then(response=> {
-                setText(response.data.join('\n'));
+                setPreview(response.data.join('\n'));
             })
     }
 
@@ -82,7 +82,7 @@ const MakeDocument = (props) => {
                     <input className="make-doc-input" value={date} onChange={(event) => setDate(event.target.value)} type="date" />
                     <button style={{width: '200px'}} onClick={randomizeDocumentText}>Randomize text</button>
                     <textarea className="make-doc-input doc-description"
-                        value={text} onChange={(event) => setText(event.target.value)}
+                        value={preview} onChange={(event) => setPreview(event.target.value)}
                         rows={20} resize="none"
                     ></textarea>
                     <br />

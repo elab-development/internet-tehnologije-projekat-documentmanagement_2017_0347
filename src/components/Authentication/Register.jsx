@@ -1,21 +1,15 @@
 
 import React , {useState, useEffect} from "react";
-import {useNavigate} from 'react-router-dom';
-import axios from 'axios';
+;
 
 export const Register = (props) => {
     const [email, setEmail] = useState('');
     const [pass, setPass] = useState('');
     const [name, setName] = useState('');
     const [role, setRole] = useState('user');
-    const [department, setDept] = useState();
-    const [departments, setDepts] = useState([]);
-    const navigate = useNavigate();
-    
-    useEffect(() => {
-        loadDepts(); 
-    }, []);
-
+    const [department, setDept] = useState(1);
+   
+   
     const handleRoleChange = (e) => {
           setRole(e.target.value);
     };
@@ -23,30 +17,19 @@ export const Register = (props) => {
     const handleDepartmentChange = (e) => {
         setDept(e.target.value);
   };
-
-  const loadDepts = async () => {
-    try {
-        const response = await axios.get('api/departments');
-        setDepts(response.data);
-    } catch (error) {
-        console.log(error);
-    }
-}
-
     const handleSubmit =(e) => {
         e.preventDefault();
-        props.registrate(name, email, pass,role,department).then(
-           // () => navigate('/')
-           props.onFormSwitch('login')
-        ).catch((er) => {
-            console.log(er);
-        });
-      //  props.authenticate(email,pass); 
+       console.log(department);
+       props.registrate(name, email, pass,role,department).then(
+           //  () => navigate('/')
+            props.onFormSwitch('login')
+         ).catch((er) => {
+             console.log(er);
+         });
     }
 
     return(
         <div className="auth-form-container">
-            
             <h2>Register</h2>
             <form className="register-form" onSubmit={handleSubmit}>
                 <label htmlFor = "email">email</label>
@@ -57,13 +40,13 @@ export const Register = (props) => {
                 <input value = {name} onChange={(e) => setName(e.target.value)} type = "name" placeholder="name" id = "name" />
                 <label htmlFor="roleSelect">select role:</label>
                     <select id="roleSelect" value={role} onChange={handleRoleChange}>
-                        <option value="user">user</option>
-                        <option value="admin">admin</option>
+                        <option value="user" key={'user'}>user</option>
+                        <option value="admin" key={'admin'}>admin</option>
                     </select>
                 <label htmlFor = "departmentSelect">department</label>
                 <select id="departmentSelect" value={department} onChange={handleDepartmentChange}>
-                    {departments.map(element => 
-                        <option  value={element.id}>{element.name}</option>
+                    {props.departments.map(element => 
+                        <option key={element.id} value ={element.id}> {element.name}</option>
                     )}
                 </select>
                 <button type="submit">Register</button>

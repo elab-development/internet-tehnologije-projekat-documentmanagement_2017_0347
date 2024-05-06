@@ -11,7 +11,7 @@ const Documents = (props) => {
     const [isPdfChecked, setIsPdfChecked] = useState(true);
     const [isWordChecked, setIsWordChecked] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
-    const [docsPerPage] = useState(3);
+    const [docsPerPage] = useState(4);
     const indexOfLastDoc = currentPage * docsPerPage;
     const indexOfFirstDoc = indexOfLastDoc - docsPerPage;
     const [departmentDocs, setDepartmentDocs] = useState([]);
@@ -24,14 +24,10 @@ const Documents = (props) => {
     //         setDepartmentDocs(response.data);
     //     })
 
-    useEffect(() => {
-        // if (dept != department){
-        //     setDepartment(dept);}
+    useEffect(() => { 
         axios.get(`api/documents/${department}`,
-            {
-                headers: {
-                    'Authorization': `Bearer ${window.sessionStorage.getItem("auth_token")}`
-                }
+            { headers: {
+                    'Authorization': `Bearer ${window.sessionStorage.getItem("auth_token")}`}
             })
             .then(response => {
                 setDepartmentDocs(response.data.data);
@@ -40,7 +36,6 @@ const Documents = (props) => {
                 console.log('error', error);
                 setError('Only authorized users can view this content.')
             })
-
     }, [department]);
 
 
@@ -103,15 +98,15 @@ const Documents = (props) => {
             {
                     <div className="all-documents">
                         {departmentDocs.filter(document => document.title.toLowerCase().includes(searchParam.toLowerCase())
-                            || document.text.toLowerCase().includes(searchParam.toLowerCase())
+                            || document.preview.toLowerCase().includes(searchParam.toLowerCase())
                         ).map(document => (
 
-                            <div className='card'>
+                            <div className='card'key={document.id}>
                                 <b>{document.title}</b>
                                 <br />
                                 {new Date(document.date).toLocaleDateString()}
                                 <br />
-                                {document.text.substring(0, 35)}...
+                                {document.preview.substring(0, 35)}...
                                 <Link className="regular" to={"/document/" + department + "/" + document.id}>
                                     View more
                                 </Link>
@@ -129,7 +124,6 @@ const Documents = (props) => {
         </div>
     )
 }
-
 export default Documents;
 // {currentDocs.filter(document => document.department === department
 //     && (document.title.toLowerCase().includes(searchParam.toLowerCase() )

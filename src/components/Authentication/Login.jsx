@@ -6,6 +6,7 @@ export const Login = (props) => {
 
     const [email, setEmail] = useState('');
     const [pass, setPass] = useState('');
+    const [attempt, setAttempt] = useState(1);
     const [authSuccess, setAuthSuccess] = useState(true);
     const navigate = useNavigate();
 
@@ -14,16 +15,20 @@ export const Login = (props) => {
         props.authenticate(email, pass).then(
             () => navigate('/')
         ).catch(() => {
+            setAttempt(attempt+1);
+            console.log(attempt);
             setAuthSuccess(false);
+            if(attempt > 3)
+        {props.onFormSwitch('change-pass');}
+           // props.onFormSwitch('login');
         });
     }
-
     return (
         <div className="auth-form-container">
             <h2>Login</h2>
             <form className="login-form" onSubmit={handleSubmit}>
                 {!authSuccess &&
-                    <label>Username or password is not correct.</label>
+                    <p className='unsuccessful'>Username or password is not correct.</p>
                 }
                 <label htmlFor="email">email</label>
                 <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="email" id="email" name="email" />

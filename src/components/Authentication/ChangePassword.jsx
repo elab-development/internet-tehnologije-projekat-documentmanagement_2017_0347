@@ -22,9 +22,9 @@ const ChangePassword = (props) => {
                 <label htmlFor="email">email</label>
                 <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="email" />
                 <label htmlFor="password">password</label>
-                <input value={pass}  onChange={(e) => setPass(e.target.value)} type="password" placeholder="********" />
+                <input value={pass}  onChange={(e) => setPass(e.target.value)} id="password" type="password" placeholder="********" />
                 <label htmlFor="password">confirm password</label>
-                <input value={pass}  onChange={(e) => setPass(e.target.value)} type="password" placeholder="********" />
+                <input value={pass}  onChange={(e) => setPass(e.target.value)} id="password" type="password" placeholder="********" />
                 <button type="submit">Change password</button>
             </form>
             <button className="link-btn" onClick={() => props.onFormSwitch('login')}>Back to login</button>

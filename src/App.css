@@ -17,8 +17,6 @@
 @media screen and (min-width: 600px){
   .auth-form-container{
     padding: 5rem;
-    border: 1px solid grey;
-    border-radius: 10px;
     margin: 0.5rem;
   }
 }
@@ -69,8 +67,8 @@ button:hover {
   font-weight: 500;
   float: right;
   margin: 20px;
-  
 }
+
 
 .all-documents {
   display: flex;
@@ -92,6 +90,12 @@ button:hover {
   margin-top: 6px;
   background-color: whitesmoke;
   float: right;
+}
+.login:hover {
+  color: rgb(164, 23, 89);
+  }
+.regular:hover{
+  color: rgb(164, 23, 89);
 }
 
 .nav-bar {
@@ -138,6 +142,12 @@ button:hover {
   font-size: 20px;
   text-align: center;
   font-weight: 700;
+}
+.unsuccessful {
+  color: rgb(164, 23, 89);
+  font-size: 20px;
+  text-align: center;
+  font-weight: 500;
 }
 .make-edit-doc-success {
   font-weight: 700;

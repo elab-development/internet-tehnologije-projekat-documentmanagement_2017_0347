@@ -5,23 +5,27 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 const OneDocument = (props) => {
     const { department, id } = useParams();
     const navigate = useNavigate();
-    const[document,setDocument]=useState({});
+    const [document, setDocument] = useState({});
 
     const handleDelete = () => {
-        props.deleteDocument(id,department);
-        navigate('/documents/' + department);
+        props.deleteDocument(id, department).then(() => {
+            navigate('/documents/' + department);
+        }).catch(() => { });
     }
 
     useEffect(() => {
-             axios.get(`api/documents/${department}/${id}`, {headers: {
-                'Authorization': `Bearer ${window.sessionStorage.getItem("auth_token")}`}
-            })
+        axios.get(`api/documents/${department}/${id}`, {
+            headers: {
+                'Authorization': `Bearer ${window.sessionStorage.getItem("auth_token")}`
+            }
+        })
             .then(response => {
                 console.log('res', response.data);
-                setDocument(response.data.data); 
+                setDocument(response.data.data);
             })
             .catch(error => {
-                console.log('Error: ', error); }); 
+                console.log('Error: ', error);
+            });
     }, [id]);
 
     return (
@@ -34,7 +38,7 @@ const OneDocument = (props) => {
             </span>
             <br />
             {/* <p>Created by <b>{employee.name}</b></p> */}
-            <p>{document.text}</p>
+            <p>{document.preview}</p>
             <br />
             <br />
             <div className="change-buttons">
