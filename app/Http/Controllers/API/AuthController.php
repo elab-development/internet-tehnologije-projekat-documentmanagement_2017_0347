@@ -30,7 +30,7 @@ class AuthController extends Controller
         }
 
         if($request->role == 'admin' && $request->department_fk != 4){
-            return response()->json(['success' => false,'message' => 'Uloga administratora se ne dodeljuje clanovima ovog odeljenja.'], 403);
+            return response()->json(['success' => false,'message' => 'Admin role cannot be given to members of this department.']);
         }
         
         $employee = Employee::create([
@@ -41,9 +41,8 @@ class AuthController extends Controller
             'department_fk' => $request->department_fk
         ]);
 
-        $token = $employee->createToken('auth_token')->plainTextToken;
 
-        return response()->json(['success' => true,'empId' => $employee->id, 'access_token' => $token, 'token_type' => 'Bearer']);
+        return response()->json(['success' => true,'empId' => $employee->id, 'token_type' => 'Bearer']);
     }
 
     public function login(Request $request)
@@ -70,7 +69,7 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
-        return response()->json(['message' => 'Dovidjenja! Za ponovni pristup serverskim rutama, molimo Vas da se ponovo ulogujete.'], 200);
+        return response()->json(['message' => 'Goodbye. To work with the DMS sevice again, please log in.'], 200);
     }
 }
 

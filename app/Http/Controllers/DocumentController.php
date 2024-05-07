@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\DocumentResource;
 use App\Models\Department;
 use App\Models\DocuTag;
+use App\Models\Employee;
 use App\Models\Tag;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -29,6 +30,30 @@ class DocumentController extends Controller
         return $departments;
     }
 
+    public function getAllEmployees(){
+        $employees = Employee::all();
+        if (empty($employees)) {
+            return response()->json(['message' => 'No employees, sorry.'], 200);}
+        $subset = $employees->map(function ($employee) {
+            return $employee->only(['id', 'name', 'email', 'department_fk']);
+        });
+        return $subset;
+    }
+
+    public function getAllTags(){
+        $tags = Tag::all();
+        if (empty($tags)) {
+            return response()->json(['message' => 'No tags .'], 200);}
+            return $tags;
+    }
+
+    public function getAllDocuTags(){
+        $docTags = DocuTag::all();
+        if (empty($docTags)) {
+            return response()->json(['message' => 'No docu_tags .'], 200);}
+            return $docTags;
+    }
+
     public function getAllDocumentsFromDepartment($name)
     {
         $departments = Department::all();
@@ -42,7 +67,7 @@ class DocumentController extends Controller
                 break;
             }
         }
-        $documents = Document::all();
+        $documents = Document::paginate(4);
         if (empty($documents)) {
             return response()->json(['data' => []]);
         }
