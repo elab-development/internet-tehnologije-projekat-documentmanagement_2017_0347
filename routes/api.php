@@ -38,6 +38,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::put('/documents/{name}/{id}/rename', [DocumentController::class, 'renameDocument']);
     Route::delete('/documents/{name}/{id}/delete', [DocumentController::class, 'deleteDocument']);
     Route::get('/documents/{name}/filter/{filter?}', [DocumentController::class, 'getFilteredDocuments']);
+    Route::get('/documents/{name}/author/{id}', [DocumentController::class, 'getDocumentsByAuthor']);
     Route::get('/documents/{name}/search/{search?}', [DocumentController::class, 'getSearchedDocuments']);
     Route::resource('documents', DocumentController::class);
     Route::post('/logout', [AuthController::class, 'logout']);

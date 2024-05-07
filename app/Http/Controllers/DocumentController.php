@@ -520,6 +520,10 @@ class DocumentController extends Controller
             }
         }
 
+        if($filteredDocs->isEmpty()){
+            return response()->json(['message' => 'No documents that match the search parameter.']);
+        }
+
         $documentsfromDept = collect(new Document());
         foreach ($filteredDocs as $fdoc) {
             if ($fdoc->department_fk == $dept_id)
@@ -527,6 +531,47 @@ class DocumentController extends Controller
         }
         if ($documentsfromDept->isEmpty()) {
             return response()->json(['message' => 'No documents in this department that match the search parameter.']);
+        }
+
+        return DocumentResource::collection($documentsfromDept);
+    }
+
+    public function getDocumentsByAuthor($name, $id){
+
+        $departments = Department::all();
+        if ($departments->isEmpty()) {
+            return response()->json(['message' => 'No departments.']);
+        }
+        $dept_id = 0;
+        foreach ($departments as $dept) {
+            if ($dept->name == $name) {
+                $dept_id = $dept->id;
+                break;
+            }
+        }
+
+        $documents = Document::all(); //mozda ce morati da se koristi paginate zbog paginacije , nisam sigurna
+        if ($documents->isEmpty()) {
+            return response()->json(['message' => 'No documents.']);
+        }
+
+        $filteredDocs = collect(new Document());
+        foreach($documents as $doc){
+            if($doc->employee_fk == $id){
+                $filteredDocs->push($doc);
+            }
+        }
+        if($filteredDocs->isEmpty()){
+            return response()->json(['message' => 'No documents written by this author.']);
+        }
+
+        $documentsfromDept = collect(new Document());
+        foreach ($filteredDocs as $fdoc) {
+            if ($fdoc->department_fk == $dept_id)
+                $documentsfromDept->push($fdoc);
+        }
+        if ($documentsfromDept->isEmpty()) {
+            return response()->json(['message' => 'No documents in this department written by this author.']);
         }
 
         return DocumentResource::collection($documentsfromDept);

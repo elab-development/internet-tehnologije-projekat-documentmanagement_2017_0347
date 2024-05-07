@@ -18,7 +18,7 @@ class DocumentResource extends JsonResource
             'id' => $this->resource->id,
             'title' => $this->resource->title,
             'date' => $this->resource->date,
-            'text' => $this->resource->text,
+            'preview' => $this->resource->preview,
             'format' => $this->resource->format,
             'employee_fk' => $this->resource->employee_fk,
             'department_fk'=> $this->resource->department_fk,
