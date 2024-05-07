@@ -11,6 +11,7 @@ import NavBar from "./components/NavBar";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import axios from "axios";
+import ForgotPassword from "./components/Authentication/ForgotPassword";
 
 function App() {
   const [userId, setUserId] = useState(null);
@@ -104,17 +105,29 @@ function App() {
     } catch (error) { throw error }
     //console.warn('Couldnt authenticate user');  
   }
-
-  const changePass = (email, password) => {
+  
+  const sendCode = (email) => {
     axios.post(
-      'http://localhost:8000/api/changePassword',
-      { email: email, password: password })
+      'http://localhost:8000/api/forgot-password',
+      { email: email})
       .then((response) => {
       })
       .catch(() => {
-        console.warn('Couldnt authenticate user');
+        console.warn('Couldn\'t send code, check if email is correct.');
       });
   }
+
+  const changePass = (email, code, password, confirmPassword) => {
+    axios.post(
+      'http://localhost:8000/api/reset-password',
+      { email: email, code:code, password: password, confirm_password: confirmPassword})
+      .then((response) => {
+      })
+      .catch(() => {
+        console.warn('Couldn\'t reset password, check if the parameters are correct.');
+      });
+  }
+  
   const deleteDocument = async (documentId, department) => {
     try {
       var res = await axios.delete(`api/documents/${department}/${documentId}/delete`, {
@@ -142,6 +155,8 @@ function App() {
             <Route path='/documents/:department' element={<Documents isDocumentDeleted={isDocumentDeleted} employees={employees} />} />
             <Route path='/documents/:department/make/:id?' element={<MakeDocument userId={userId} />} />
             <Route path='/document/:department/:id' element={<OneDocument deleteDocument={deleteDocument} />} />
+            <Route path='/forgot-password' element={<ForgotPassword sendCode = {sendCode}/>} />
+            <Route path='/reset-password' element={<ForgotPassword sendCode = {sendCode}/>} />
           </Routes>
           <Footer />
         </Router>
