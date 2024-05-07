@@ -33,7 +33,7 @@ class DocumentController extends Controller
     public function getAllEmployees(){
         $employees = Employee::all();
         if (empty($employees)) {
-            return response()->json(['message' => 'No employees, sorry.'], 200);}
+            return response()->json(['message' => 'No employees, sorry.']);}
         $subset = $employees->map(function ($employee) {
             return $employee->only(['id', 'name', 'email', 'department_fk']);
         });
@@ -43,14 +43,14 @@ class DocumentController extends Controller
     public function getAllTags(){
         $tags = Tag::all();
         if (empty($tags)) {
-            return response()->json(['message' => 'No tags .'], 200);}
+            return response()->json(['message' => 'No tags .']);}
             return $tags;
     }
 
     public function getAllDocuTags(){
         $docTags = DocuTag::all();
         if (empty($docTags)) {
-            return response()->json(['message' => 'No docu_tags .'], 200);}
+            return response()->json(['message' => 'No docu_tags .']);}
             return $docTags;
     }
 
@@ -162,8 +162,8 @@ class DocumentController extends Controller
             }else{
                 return response()->json(['message' => 'Check document format.']); 
             }
-            $preview = Storage::get($path, 'UTF-8');
-            $base64Preview = base64_encode($preview);
+            $text = Storage::get($path);
+            $base64Preview = base64_encode($text);
             $dirtyFileName = $request->file('file')->getClientOriginalName();
             $cleanFileName = pathinfo($dirtyFileName, PATHINFO_FILENAME);
                 Document::create([
@@ -175,6 +175,17 @@ class DocumentController extends Controller
                     'department_fk' => $department_fk,
                     'path' => $path
                 ]);
+            $latestDocument = Document::orderBy('date', 'desc')->first();
+            $tags = $this -> getAllTags();
+            foreach($tags as $tag){
+                if(str_contains($text, $tag->keyword) || str_contains($cleanFileName, $tag->keyword)){
+                    DocuTag::create([
+                        'document_id' => $latestDocument -> id,
+                        'tag_id' => $tag -> id
+                    ]);
+                }
+            }
+            return $latestDocument;
                 return response()->json(['message' => 'Document successfully uploaded.']);
         } else {
             return response()->json(['message' => 'You do not have the privilege to upload this document.']);
@@ -434,7 +445,7 @@ class DocumentController extends Controller
             }
         }
 
-        $documents = Document::all();
+        $documents = Document::all(); //mozda ce morati da se koristi paginate zbog paginacije , nisam sigurna
         if (empty($documents)) {
             return response()->json(['message' => 'No documents.']);
         }
@@ -495,18 +506,27 @@ class DocumentController extends Controller
             }
         }
 
-        $documents = Document::where('title', 'like', "%{$search}%")->orWhere('text', 'like', "%{$search}%")->get();
+        $documents = Document::all(); //mozda ce morati da se koristi paginate zbog paginacije , nisam sigurna
         if ($documents->isEmpty()) {
             return response()->json(['message' => 'No documents.']);
         }
 
+        $filteredDocs = collect(new Document());
+        foreach($documents as $doc){
+            $text = Storage::get($doc->path);
+            $title = $doc -> title;
+            if(str_contains($text, $search) || str_contains($title, $search)){
+                $filteredDocs->push($doc);
+            }
+        }
+
         $documentsfromDept = collect(new Document());
-        foreach ($documents as $doc) {
-            if ($doc->department_fk == $dept_id)
-                $documentsfromDept->push($doc);
+        foreach ($filteredDocs as $fdoc) {
+            if ($fdoc->department_fk == $dept_id)
+                $documentsfromDept->push($fdoc);
         }
         if ($documentsfromDept->isEmpty()) {
-            return response()->json(['message' => 'No documents in this department that match the tag.']);
+            return response()->json(['message' => 'No documents in this department that match the search parameter.']);
         }
 
         return DocumentResource::collection($documentsfromDept);

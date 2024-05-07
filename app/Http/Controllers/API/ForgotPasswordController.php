@@ -11,9 +11,15 @@ class ForgotPasswordController extends Controller
 {
     public function forgotPassword(ForgotPasswordRequest $request){
         $input = $request -> only('email');
+        if(empty($input)){
+            return response()->json(['message' => 'Email required.']); 
+        }
         $employee = Employee::where('email', $input)->first();
+        if(empty($employee)){
+            return response()->json(['message' => 'Employee does not exist.']); 
+        }
         $employee -> notify(new ResetPasswordVerificationNotification());
-        $success['success'] = 'Reset code sent to email.';
-        return response()->json($success); 
+        $success['success'] = 'Reset password code successfully sent.';
+        return response()->json([$success]); 
     }
 }

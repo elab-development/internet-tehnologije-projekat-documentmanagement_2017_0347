@@ -22,7 +22,12 @@ class ResetPasswordController extends Controller
             return response()->json(['error'=> $newOtp]);
         }
         $employee = Employee::where('email', $request->email)->first();
-        $employee -> update(['password' => Hash::make($request->password)]);
+        $password = $request -> password;
+        $confirm_password = $request -> confirm_password;
+        if($password != $confirm_password){
+            return response()->json(['error'=> 'Passwords do not match.']);
+        }
+        $employee -> update(['password' => Hash::make($password)]);
         $employee -> tokens() -> delete();
         $success['success'] = 'Password successfully reset.';
         return response()->json($success); 
