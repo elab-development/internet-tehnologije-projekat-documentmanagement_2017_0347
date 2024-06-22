@@ -17,15 +17,15 @@ const ForgotPassword = (props) => {
 
     return (
         <>
-        <div className="auth-form-container">
-            <h2>Forgotten password</h2>
-            <form className="login-form" onSubmit={handleSubmit}>
-                <label htmlFor="email">email</label>
-                <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="email" />
-                <button type="submit">Send code</button>
-            </form>
-            <button className="link-btn" onClick={() => props.onFormSwitch('reset-password')}>Back to login</button>
-        </div>
+            <div className="auth-form-container">
+                <h2>Forgotten password</h2>
+                <form className="login-form" onSubmit={handleSubmit}>
+                    <label htmlFor="email">email</label>
+                    <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="email" />
+                    <button type="submit">Send code</button>
+                </form>
+                <button className="link-btn" onClick={() => props.onFormSwitch('reset-password')}>Back to login</button>
+            </div>
         </>
     )
 }

@@ -13,6 +13,7 @@ import Footer from "./components/Footer";
 import axios from "axios";
 import UploadPage from "./components/Documents/UploadPage";
 import UploadPage2 from "./components/Documents/UploadPage2";
+import ForgotPassword from "./components/Authentication/ForgotPassword";
 
 function App() {
   const [userId, setUserId] = useState(null);
