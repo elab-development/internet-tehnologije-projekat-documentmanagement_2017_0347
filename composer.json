@@ -16,7 +16,7 @@
         "laravel/tinker": "^2.8",
         "laravel/ui": "^4.4",
         "phpoffice/phpword": "^1.2",
-        "smalot/pdfparser": "^2.9",
+        "smalot/pdfparser": "^2.10",
         "thiagoprz/eloquent-composite-key": "^1.0"
     },
     "require-dev": {

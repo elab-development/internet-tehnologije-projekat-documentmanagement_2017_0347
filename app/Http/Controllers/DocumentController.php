@@ -9,6 +9,7 @@ use App\Models\Department;
 use App\Models\DocuTag;
 use App\Models\Employee;
 use App\Models\Tag;
+use Smalot\PdfParser\Parser;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -17,12 +18,16 @@ use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\IOFactory;
 use Illuminate\Support\Facades\Storage;
 use Dompdf\Dompdf;
-use Smalot\PdfParser\Parser;
-use GuzzleHttp\Client; 
+use Illuminate\Support\Facades\File;
+
+//update nije gotov, proveri da li se path cuva ispravno i uniformno u svim fjama
+
+
 class DocumentController extends Controller
 {
 
-    public function getAllDepartments(){
+    public function getAllDepartments()
+    {
         $departments = Department::all();
         if (empty($departments)) {
             return response()->json(['message' => 'No departments.']);
@@ -30,30 +35,58 @@ class DocumentController extends Controller
         return $departments;
     }
 
-    public function getAllEmployees(){
+    public function getAllEmployees()
+    {
         $employees = Employee::all();
         if (empty($employees)) {
-            return response()->json(['message' => 'No employees, sorry.']);}
+            return response()->json(['message' => 'No employees, sorry.'], 200);
+        }
         $subset = $employees->map(function ($employee) {
             return $employee->only(['id', 'name', 'email', 'department_fk']);
         });
         return $subset;
     }
 
-    public function getAllTags(){
+    public function getDocumentPath($title, $extension)
+    {
+        //  $fileName = $title . '.' . $extension;        
+        // $filePath = public_path('storage\\' . $fileName);
+        // return response()->json(['path' => $filePath]);
+
+        $fileName = $title . '.' . $extension;
+        $path = storage_path('app\\public\\' . $fileName);
+
+        if (!File::exists($path)) {
+            abort(404);
+        }
+
+        $file = File::get($path);
+        $base64 = base64_encode($file);
+        $type = File::mimeType($path);
+
+        return response()->json([
+            'base64' => 'data:' . $type . ';base64,' . $base64,
+        ]);
+    }
+
+    public function getAllTags()
+    {
         $tags = Tag::all();
         if (empty($tags)) {
-            return response()->json(['message' => 'No tags .']);}
-            return $tags;
+            return response()->json(['message' => 'No tags .']);
+        }
+        return $tags;
     }
 
-    public function getAllDocuTags(){
+    public function getAllDocuTags()
+    {
         $docTags = DocuTag::all();
         if (empty($docTags)) {
-            return response()->json(['message' => 'No docu_tags .']);}
-            return $docTags;
+            return response()->json(['message' => 'No docu_tags .']);
+        }
+        return $docTags;
     }
-
+    //+ paginate
     public function getAllDocumentsFromDepartment($name)
     {
         $departments = Department::all();
@@ -67,7 +100,7 @@ class DocumentController extends Controller
                 break;
             }
         }
-        $documents = Document::paginate(4);
+        $documents = Document::all();
         if (empty($documents)) {
             return response()->json(['data' => []]);
         }
@@ -77,7 +110,7 @@ class DocumentController extends Controller
                 $documentsfromDept->push($doc);
         }
         if ($documentsfromDept->isEmpty()) {
-            return response()->json(['data'=> []]);
+            return response()->json(['data' => []]);
         }
         return DocumentResource::collection($documentsfromDept);
     }
@@ -91,7 +124,7 @@ class DocumentController extends Controller
 
         foreach ($documents as $doc) {
             if ($doc->id == $id) {
-               
+
                 $document = new Document();
                 $document->id = $doc->id;
                 $document->title = $doc->title;
@@ -100,9 +133,9 @@ class DocumentController extends Controller
                 $document->format = $doc->format;
                 $document->employee_fk = $doc->employee_fk;
                 $document->department_fk = $doc->department_fk;
-              
 
-                return response()->json(['data'=> $document]);
+
+                return response()->json(['data' => $document]);
             }
         }
 
@@ -123,23 +156,26 @@ class DocumentController extends Controller
                 break;
             }
         }
-        if ($request->user()->role == 'admin' || $request->user()->department_fk == $department_fk) {
+
+        $user = Employee::where('id', (string) $request->userId)->first();
+
+        if ($user->role == 'admin' || $user->department_fk == $department_fk) {
             $request->validate([
                 'file' => 'required|file',
             ]);
             $file = $request->file('file');
             if ($file->isValid()) {
                 $originalFileName = $file->getClientOriginalName();
-                $existingFiles = Storage::files('uploads');
+                $existingFiles = Storage::files('public');
                 $newFileName = $originalFileName;
                 $i = 1;
-                while (in_array("uploads/$newFileName", $existingFiles)) {
+                while (in_array("public\\$newFileName", $existingFiles)) {
                     $extension = $file->getClientOriginalExtension();
                     $fileNameWithoutExtension = pathinfo($originalFileName, PATHINFO_FILENAME);
                     $newFileName = $fileNameWithoutExtension . '_' . $i . '.' . $extension;
                     $i++;
                 }
-                $path = $file->storeAs('uploads', $newFileName);
+                $path = $file->storeAs('public', $newFileName);
             } else {
                 return response()->json(['message' => 'File is not valid.']);
             }
@@ -154,45 +190,71 @@ class DocumentController extends Controller
                 }
             }
             $extension = pathinfo($path, PATHINFO_EXTENSION);
-            if($extension === 'doc' || $extension === 'docx'){
+            $text = '';
+            $absolutePath = storage_path('app\\public\\') . $request->file('file')->getClientOriginalName();
+            if ($extension === 'doc' || $extension === 'docx') {
                 $format = 'word';
-            }
-            elseif ($extension === 'pdf') {
+
+                $phpWord = IOFactory::load($absolutePath);
+
+                // Extract text from each section and paragraph
+                foreach ($phpWord->getSections() as $section) {
+                    foreach ($section->getElements() as $element) {
+                        if ($element instanceof \PhpOffice\PhpWord\Element\TextRun) {
+                            $text .= $element->getText();
+                        }
+                    }
+                }
+            } elseif ($extension === 'pdf') {
                 $format = 'pdf';
-            }else{
-                return response()->json(['message' => 'Check document format.']); 
+
+                // $text = file_get_contents($absolutePath);
+
+                $pdfParser = new Parser();
+                $pdf = $pdfParser->parseFile($file->path());
+                $text = $pdf->getText();
+            } else {
+                return response()->json(['message' => 'Check document format.']);
             }
-            $text = Storage::get($path);
-            $base64Preview = base64_encode($text);
+
+            $dotIndex = strpos($text, ".");
+            $preview = $text;
+            if ($dotIndex !== false) {
+                $preview = substr($text, 0, $dotIndex + 1);
+            }
+
+            // $text = Storage::get($path);
+            // $base64Preview = base64_encode($text);
+            // $textDecoded = base64_decode($base64Preview);
             $dirtyFileName = $request->file('file')->getClientOriginalName();
             $cleanFileName = pathinfo($dirtyFileName, PATHINFO_FILENAME);
-                Document::create([
-                    'title' => $cleanFileName,
-                    'date' => Carbon::now(),
-                    'preview' =>substr($base64Preview,0,80),
-                    'format' => $format,
-                    'employee_fk' => $employee -> id,
-                    'department_fk' => $department_fk,
-                    'path' => $path
-                ]);
+            Document::create([
+                'title' => $cleanFileName,
+                'date' => Carbon::now(),
+                'preview' => $preview,
+                'format' => $format,
+                'employee_fk' => $employee->id,
+                'department_fk' => $department_fk,
+                'path' => $absolutePath
+            ]);
             $latestDocument = Document::orderBy('date', 'desc')->first();
-            $tags = $this -> getAllTags();
-            foreach($tags as $tag){
-                if(str_contains($text, $tag->keyword) || str_contains($cleanFileName, $tag->keyword)){
+            $tags = $this->getAllTags();
+            foreach ($tags as $tag) {
+                if (str_contains($text, $tag->keyword) || str_contains($cleanFileName, $tag->keyword)) {
                     DocuTag::create([
-                        'document_id' => $latestDocument -> id,
-                        'tag_id' => $tag -> id
+                        'document_id' => $latestDocument->id,
+                        'tag_id' => $tag->id
                     ]);
                 }
             }
             return $latestDocument;
-                return response()->json(['message' => 'Document successfully uploaded.']);
+            return response()->json(['message' => 'Document successfully uploaded.']);
         } else {
             return response()->json(['message' => 'You do not have the privilege to upload this document.']);
         }
     }
 
-    public function downloadDocument(Request $request, $name, $id)
+    public function downloadDocument($name, $id)
     {
         $document = Document::where('id', $id)->first();
         if (!$document) {
@@ -208,7 +270,23 @@ class DocumentController extends Controller
         return response()->download($filePath, $fileName);
     }
 
-    /*
+    public function download(Request $request)
+    {
+        // Define the path to the file
+        // $filePath = storage_path("app\\public\\{$filename}");
+
+        $encodedFilePath = $request->query('filePath');
+        $filePath = urldecode($encodedFilePath);
+
+        // Check if the file exists
+        if (!file_exists($filePath)) {
+            abort(404, 'File not found.');
+        }
+
+        // Return the file as a response to download
+        return response()->download($filePath);
+    }
+
     public function makeDocument(Request $request, $name)
     {
         $departments = Department::all();
@@ -249,12 +327,14 @@ class DocumentController extends Controller
                 $phpWord->addTitle(request('title'));
                 $section->addText(request('text'));
 
-                $filePath = storage_path('app/public/') . request('title') . '.docx';
+                $filePath = storage_path('app\\public\\') . request('title') . '.docx';
                 $phpWord->save($filePath, 'Word2007');
+                $newlineIndex = strpos(request('text'), "\n");
+                $preview = substr(request('text'), 0, $newlineIndex);
                 Document::create([
                     'title' => request('title'),
                     'date' => $date,
-                    'text' =>substr(request('text'),0, 80) ,
+                    'preview' => $preview,
                     'format' => request('format'),
                     'employee_fk' => $employee_fk,
                     'department_fk' => $department_fk,
@@ -268,28 +348,29 @@ class DocumentController extends Controller
                 $dompdf->loadHtml($html);
                 $dompdf->render();
                 $pdfContent = $dompdf->output();
-                $pdfPath = storage_path('app/public/') . $title . '.pdf';
+                $pdfPath = storage_path('app\\public\\') . $title . '.pdf';
                 file_put_contents($pdfPath, $pdfContent);
                 Document::create([
                     'title' => request('title'),
                     'date' => $date,
-                    'text' =>substr(request('text'),0, 80) ,
+                    'preview' => substr(request('text'), 0, 80),
                     'format' => request('format'),
                     'employee_fk' => $employee_fk,
                     'department_fk' => $department_fk,
                     'path' => $pdfPath
-                ]);}
+                ]);
+            }
             return response()->json(['message' => 'Document successfuly created.']);
         } else {
             return response()->json(['message' => 'You do not have the privilege to make this document.']);
         }
     }
 
-    
-    public function updateDocument(Request $request ,$id)
+    // jos nije gotova
+    public function updateDocument(Request $request, $id)
     {
         $document = Document::where('id', $id)->first();
-        $title = $document -> title;
+        $title = $document->title;
         $format_values = ['pdf', 'word'];
         if ($document) {
             if ($request->user()->role == 'admin' || $document->employee_fk == $request->user()->id) {
@@ -307,16 +388,15 @@ class DocumentController extends Controller
                 }
 
                 if (request('format') == 'word') {
-                    $filePath = storage_path('app/public/') . $title . '.docx';
-                    $filePath = str_replace('/', '\\', $filePath);
+                    $filePath = storage_path('app\\public\\') . $title . '.docx';
                     $phpWord = IOFactory::load($filePath);
                     $section = $phpWord->addSection();
                     $phpWord->addTitle(request('title'));
                     $section->addText(request('text'));
-                    $newFilePath = storage_path('app/public/') . request('title'). '.docx';
+                    $newFilePath = storage_path('app\\public\\') . request('title') . '.docx';
                     $phpWord->save($newFilePath, 'Word2007');
                 } else {
-                    $pdfPath = 'public/' . request('title');
+                    $pdfPath = 'public\\' . request('title');
                     $pdfContent = Storage::get($pdfPath);
                     $newTitle = $request->title;
                     $newContent = $request->text;
@@ -326,14 +406,16 @@ class DocumentController extends Controller
                     $dompdf->loadHtml($html);
                     $dompdf->render();
                     $newPdfContent = $dompdf->output();
-                    $pdfPath = storage_path('app/public/') . $newTitle . '.pdf';
+                    $pdfPath = storage_path('app\\public\\') . $newTitle . '.pdf';
                     file_put_contents($pdfPath, $newPdfContent);
                 }
 
                 $date = Carbon::now();
                 $document->title = $request->title;
                 $document->date = $date;
-                $document->text = $request->text;
+                $newlineIndex = strpos(request('text'), "\n");
+                $preview = substr(request('text'), 0, $newlineIndex);
+                $document->preview = $preview;
                 $document->update();
 
                 return response()->json(['message' => 'Document successfully updated.']);
@@ -344,11 +426,12 @@ class DocumentController extends Controller
             return response()->json(['message' => 'Document does not exist.']);
         }
     }
-    */
 
-    public function renameDocument(Request $request, $name, $id){
+
+    public function renameDocument(Request $request, $name, $id)
+    {
         $document = Document::where('id', $id)->first();
-        $title = $document -> title;
+        $title = $document->title;
         $path = $document->path;
         if ($document) {
             if ($request->user()->role == 'admin' || $document->employee_fk == $request->user()->id) {
@@ -360,17 +443,17 @@ class DocumentController extends Controller
                     return response()->json(['message' => 'Check if title field is filled.']);
                 }
 
-                if ($document -> format == 'word') {
-                    $filePath = storage_path('app/uploads/') . $title . '.docx';
+                if ($document->format == 'word') {
+                    $filePath = storage_path('app\\public\\') . $title . '.docx';
                     $filePath = str_replace('/', '\\', $filePath);
                     $phpWord = IOFactory::load($filePath);
                     $phpWord->addTitle(request('title'));
-                    $newFilePath = storage_path('app/uploads/') . request('title'). '.docx';
+                    $newFilePath = storage_path('app\\public\\') . request('title') . '.docx';
                     Storage::delete($path);
-                    $path = 'uploads\\' . request('title') . '.docx';
+                    $path = 'public\\' . request('title') . '.docx';
                     $phpWord->save($newFilePath, 'Word2007');
                 } else {
-                    $pdfPath = 'public/' . request('title');
+                    $pdfPath = 'public\\' . request('title');
                     $pdfContent = Storage::get($pdfPath);
                     $newTitle = $request->title;
                     $html = "<h1>$newTitle</h1>";
@@ -379,9 +462,9 @@ class DocumentController extends Controller
                     $dompdf->loadHtml($html);
                     $dompdf->render();
                     $newPdfContent = $dompdf->output();
-                    $pdfPath = storage_path('app/uploads/') . $newTitle . '.pdf';
+                    $pdfPath = storage_path('app\\public\\') . $newTitle . '.pdf';
                     Storage::delete($path);
-                    $path = 'uploads\\'. $newTitle . 'pdf';
+                    $path = 'public\\' . $newTitle . 'pdf';
                     file_put_contents($pdfPath, $newPdfContent);
                 }
 
@@ -400,31 +483,76 @@ class DocumentController extends Controller
         }
     }
 
-    
-    public function deleteDocument(Request $request, $name, $id)
+    public function renameDocumentZeka(Request $request, $name, $id)
     {
         $document = Document::where('id', $id)->first();
-        if($document->format == 'pdf'){
-            $filePath = 'uploads/'. $document -> title . '.pdf';
-        }else{
-            $filePath = 'uploads/'. $document -> title . '.docx';
-        }
-        $cleanedPath = str_replace('\\\\', '\\', $filePath);
-        $cleanedPath = str_replace('/', '\\', $cleanedPath);
+
         if ($document) {
             if ($request->user()->role == 'admin' || $document->employee_fk == $request->user()->id) {
-                if (Storage::exists($cleanedPath)) {
-                    Storage::delete($cleanedPath);
-                    $document->delete();
-                    return response()->json(['message' => 'Document successfully deleted.']);
-                }else{
-                    return response()->json(['message' => 'Document is not successfully deleted.']);
+                $validator = Validator::make($request->only('title'), [
+                    'title' => 'required'
+                ]);
+
+                if ($validator->fails()) {
+                    return response()->json(['message' => 'Check if title field is filled.']);
                 }
+
+                $filePath = storage_path('app\\public\\') . $document->title;
+                $newFilePath = storage_path('app\\public\\') . request('title');
+
+                if ($document->format == 'word') {
+                    $extension = '.docx';
+                    $filePath .= $extension;
+                    $newFilePath .= $extension;
+                } else {
+                    $extension = '.pdf';
+                    $filePath .= $extension;
+                    $newFilePath .= $extension;
+                }
+                rename($filePath, $newFilePath);
+
+                $date = Carbon::now();
+                $document->title = $request->title;
+                $document->date = $date;
+                $document->path = $newFilePath;
+                $document->update();
+
+                return response()->json(['message' => 'Document title successfully updated.']);
             } else {
-                return response()->json(['message' => 'You do not have the privilege to delete this document.']);
+                return response()->json(['message' => 'You do not have the right privilege to update document title.']);
             }
         } else {
             return response()->json(['message' => 'Document does not exist.']);
+        }
+    }
+
+    public function deleteDocument(Request $request, $name, $id, $userId)
+    {
+        $document = Document::where('id', $id)->first();
+        if (!$document) {
+            return response()->json(['message' => 'Document does not exist.']);
+        }
+
+        if ($document->format == 'pdf') {
+            $filePath = 'public\\' . $document->title . '.pdf';
+        } else {
+            $filePath = 'public\\' . $document->title . '.docx';
+        }
+        $cleanedPath = str_replace('\\\\', '\\', $filePath);
+
+        $user = Employee::where('id', (string) $userId)->first();
+
+        if ($user->role == 'admin' || $document->employee_fk == $user->id) {
+            if (Storage::exists($cleanedPath)) {
+                Storage::delete($cleanedPath);
+                DocuTag::where('document_id', $document->id)->delete();
+                $document->delete();
+                return response()->json(['message' => 'Document successfully deleted.']);
+            } else {
+                return response()->json(['message' => 'Document is not successfully deleted.']);
+            }
+        } else {
+            return response()->json(['message' => 'You do not have the privilege to delete this document.']);
         }
     }
 
@@ -512,15 +640,15 @@ class DocumentController extends Controller
         }
 
         $filteredDocs = collect(new Document());
-        foreach($documents as $doc){
+        foreach ($documents as $doc) {
             $text = Storage::get($doc->path);
-            $title = $doc -> title;
-            if(str_contains($text, $search) || str_contains($title, $search)){
+            $title = $doc->title;
+            if (str_contains($text, $search) || str_contains($title, $search)) {
                 $filteredDocs->push($doc);
             }
         }
 
-        if($filteredDocs->isEmpty()){
+        if ($filteredDocs->isEmpty()) {
             return response()->json(['message' => 'No documents that match the search parameter.']);
         }
 
@@ -536,7 +664,8 @@ class DocumentController extends Controller
         return DocumentResource::collection($documentsfromDept);
     }
 
-    public function getDocumentsByAuthor($name, $id){
+    public function getDocumentsByAuthor($name, $id)
+    {
 
         $departments = Department::all();
         if ($departments->isEmpty()) {
@@ -556,12 +685,12 @@ class DocumentController extends Controller
         }
 
         $filteredDocs = collect(new Document());
-        foreach($documents as $doc){
-            if($doc->employee_fk == $id){
+        foreach ($documents as $doc) {
+            if ($doc->employee_fk == $id) {
                 $filteredDocs->push($doc);
             }
         }
-        if($filteredDocs->isEmpty()){
+        if ($filteredDocs->isEmpty()) {
             return response()->json(['message' => 'No documents written by this author.']);
         }
 
@@ -632,5 +761,4 @@ class DocumentController extends Controller
     {
         //
     }
-
 }
