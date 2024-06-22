@@ -80,17 +80,16 @@ button:hover {
 }
 
 .card {
-  background-color: whitesmoke;
   padding: 10px;
   border: 2px solid black;
   border-radius: 5px;
-  flex-basis: 30%;
+  flex-basis: 75%;
 }
-.view-more-button {
+/* .view-more-button {
   margin-top: 6px;
   background-color: whitesmoke;
   float: right;
-}
+} */
 .login:hover {
   color: rgb(164, 23, 89);
   }
@@ -250,4 +249,58 @@ button:hover {
 .pagination .active:hover {
   color:#f49cc5;
   background: whitesmoke;
+}
+
+.upload-page {
+  width: 300px;
+  margin: auto;
+}
+
+.drop-zone {
+  border: 2px dashed #ccc;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+
+.drop-zone.drag-over {
+  border-color: #000;
+}
+
+.file-input {
+  display: none;
+}
+
+.success-message {
+  color: green;
+}
+
+.error-message {
+  color: red;
+}
+
+.file-container {
+  margin: 8px 0px;
+  border: 1px solid black;
+  border-radius: 3px;
+  padding: 15px;
+  color: white;
+  background-color: lightgray;
+  position: relative;
+}
+
+.remove-file {
+  position: absolute;
+  right: 10px;
+  top: 25%;
+  cursor: pointer;
+}
+
+.invisible {
+  display: none;
+}
+.disabled-button{
+  text-decoration-color: gray;
 }

@@ -13,14 +13,15 @@ export const Login = (props) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         props.authenticate(email, pass).then(
+
             () => navigate('/')
         ).catch(() => {
-            setAttempt(attempt+1);
+
+            setAttempt(attempt + 1);
             console.log(attempt);
             setAuthSuccess(false);
-            if(attempt > 3)
-        {props.onFormSwitch('change-pass');}
-           // props.onFormSwitch('login');
+            if (attempt > 3) { props.onFormSwitch('change-pass'); }
+            // props.onFormSwitch('login');
         });
     }
     return (

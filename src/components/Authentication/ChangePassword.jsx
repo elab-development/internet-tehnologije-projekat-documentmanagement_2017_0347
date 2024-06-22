@@ -1,5 +1,3 @@
-// provera da li su lozinke iste ako ne refresh?
-
 import React, { useState } from "react"
 import { useNavigate } from 'react-router-dom';
 
@@ -7,27 +5,33 @@ import { useNavigate } from 'react-router-dom';
 const ChangePassword = (props) => {
     const [email, setEmail] = useState('');
     const [pass, setPass] = useState('');
+    const [code, setCode] = useState('');
+    const [confirmPass, setConfrimPass] = useState('');
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        props.changePass(email, pass);
+    
+    props.changePass(email, code, pass, confirmPass );
     }
 
     return (
         <>
         <div className="auth-form-container">
-            <h2>Login</h2>
+            <h2>Reset Password</h2>
             <form className="login-form" onSubmit={handleSubmit}>
                 <label htmlFor="email">email</label>
-                <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="email" />
+                <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="" />
+                <label htmlFor="code">code</label>
+                <input value={code} onChange={(e) => setCode(e.target.value)} id="code" type="string" placeholder="" />
                 <label htmlFor="password">password</label>
-                <input value={pass}  onChange={(e) => setPass(e.target.value)} id="password" type="password" placeholder="********" />
-                <label htmlFor="password">confirm password</label>
-                <input value={pass}  onChange={(e) => setPass(e.target.value)} id="password" type="password" placeholder="********" />
-                <button type="submit">Change password</button>
+                <input value={pass}  onChange={(e) => setPass(e.target.value)} id="password" type="password" placeholder="" />
+                <label htmlFor="password2">confirm password</label>
+                <input value={confirmPass}  onChange={(e) => setConfrimPass(e.target.value)} id="password2" type="password" placeholder="" />
+
+                {/* +provera jednakosti sifri - confirmpass u pozivu  */}
+                <button type="submit" onClick={() => props.onFormSwitch('login')} >Change password</button>
             </form>
-            <button className="link-btn" onClick={() => props.onFormSwitch('login')}>Back to login</button>
         </div>
         </>
     )

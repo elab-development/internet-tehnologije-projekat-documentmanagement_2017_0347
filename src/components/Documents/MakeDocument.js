@@ -13,7 +13,7 @@ const MakeDocument = (props) => {
     const [title, setTitle] = useState('');
     const [date, setDate] = useState('2020-01-01');
     const [preview, setPreview] = useState('');
-    const [format, setFormat] = useState('');
+    const [format, setFormat] = useState('word');
     const [isDocumentCreated, setIsDocumentCreated] = useState(false);
     const location = useLocation();
     
@@ -46,14 +46,14 @@ const MakeDocument = (props) => {
                    id: document != null ? document.id : null,// sta se desava sa id u bazi
                     title: title,
                     date: date,
-                    preview:preview,
+                    text:preview,
                     format: format,
                     department: location.pathname.split('/')[2],
                     employee:  props.userId 
                 }
-        const route = document !== null ? 
-                `api/documents/${department}/make`
-                : `api/documents/${department}/${document.id}/update`;
+        const route = documentId !==null ? 
+        `api/documents/${department}/${document.id}/update`
+        :`api/documents/${department}/make`;
         axios.post(route, newDocument,{ headers: {
             'Authorization': `Bearer ${window.sessionStorage.getItem("auth_token")}`}
         })
@@ -80,7 +80,7 @@ const MakeDocument = (props) => {
                     <br />
                     <label htmlFor="date">Date</label>
                     <input className="make-doc-input" value={date} onChange={(event) => setDate(event.target.value)} type="date" />
-                    <button style={{width: '200px'}} onClick={randomizeDocumentText}>Randomize text</button>
+                    <button type="button" style={{width: '200px'}} onClick={randomizeDocumentText}>Randomize text</button>
                     <textarea className="make-doc-input doc-description"
                         value={preview} onChange={(event) => setPreview(event.target.value)}
                         rows={20} resize="none"

@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom';
 import Paginate from '../Pagination';
 import axios from 'axios';
+import DocumentCard from './DocumentCard';
 
 const Documents = (props) => {
     const { department } = useParams();
+    const [isDocumentDeleted, setIsDocumentDeleted] = useState(false);
     //const[currentDepartment,setCurrentDepartment]=useState(department);
 
     const [searchParam, setSearchParam] = useState('');
@@ -16,7 +18,7 @@ const Documents = (props) => {
     const indexOfFirstDoc = indexOfLastDoc - docsPerPage;
     const [departmentDocs, setDepartmentDocs] = useState([]);
     const [filteredDocuments, setFilteredDocuments] = useState(departmentDocs);
-    const [error, setError] =  useState('');
+    const [error, setError] = useState('');
     // const currentDocs = departmentDocs.slice(indexOfFirstDoc, indexOfLastDoc);
 
     // axios.get(`documents/${department}`)
@@ -24,10 +26,12 @@ const Documents = (props) => {
     //         setDepartmentDocs(response.data);
     //     })
 
-    useEffect(() => { 
+    useEffect(() => {
         axios.get(`api/documents/${department}`,
-            { headers: {
-                    'Authorization': `Bearer ${window.sessionStorage.getItem("auth_token")}`}
+            {
+                headers: {
+                    'Authorization': `Bearer ${window.sessionStorage.getItem("auth_token")}`
+                }
             })
             .then(response => {
                 setDepartmentDocs(response.data.data);
@@ -38,6 +42,27 @@ const Documents = (props) => {
             })
     }, [department]);
 
+    const deleteDocument = async (documentId, department) => {
+        try {
+            var res = await axios.delete(`api/documents/${department}/${documentId}/${props.userId}/delete`, {
+                headers: {
+                    'Authorization': `Bearer ${window.sessionStorage.getItem("auth_token")}`
+                }
+            });
+
+            if (res) {
+                setIsDocumentDeleted(true);
+                setDepartmentDocs(departmentDocs.filter(doc => doc.id !== documentId));
+            }
+        }
+        catch (err) { throw err }
+    }
+
+    useEffect(() => {
+        if (isDocumentDeleted) {
+            setTimeout(() => { setIsDocumentDeleted(false) }, 5000)
+        }
+    }, [isDocumentDeleted]);
 
     // const previousPage = () => {
     //     if (currentPage !== 1) {
@@ -90,29 +115,21 @@ const Documents = (props) => {
                         value="pdf" onChange={pdfCheckboxChange} />pdf
                     <input className='filter-docs-input' checked={isWordChecked} type="checkbox"
                         value="word" onChange={wordCheckboxChange} /> word */}
+
                 </form>
+                <Link className='create-new-doc' to={"/documents/" + department + "/upload2"}><button>Upload a document</button></Link>
                 <Link className='create-new-doc' to={"/documents/" + department + "/make"}><button>Create a document</button></Link>
+
             </div>
             {error && (<div>{error}</div>)}
-            <div>lalal</div>
             {
-                    <div className="all-documents">
-                        {departmentDocs.filter(document => document.title.toLowerCase().includes(searchParam.toLowerCase())
-                            || document.preview.toLowerCase().includes(searchParam.toLowerCase())
-                        ).map(document => (
-
-                            <div className='card'key={document.id}>
-                                <b>{document.title}</b>
-                                <br />
-                                {new Date(document.date).toLocaleDateString()}
-                                <br />
-                                {document.preview.substring(0, 35)}...
-                                <Link className="regular" to={"/document/" + department + "/" + document.id}>
-                                    View more
-                                </Link>
-                            </div>
-                        ))}
-                    </div>     
+                <div className="all-documents">
+                    {departmentDocs.filter(document => document.title.toLowerCase().includes(searchParam.toLowerCase())
+                        // || document.preview.toLowerCase().includes(searchParam.toLowerCase())
+                    ).map(document => (
+                        <DocumentCard doc={document} department={department} deleteDocument={deleteDocument} />
+                    ))}
+                </div>
             }
             {/* <Paginate
                 docsPerPage={docsPerPage}
