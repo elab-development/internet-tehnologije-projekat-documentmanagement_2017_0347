@@ -55,6 +55,15 @@ button:hover {
   background-color: gray;
   color: white;
 }
+.disabled-button{
+  color:gray;
+  transition: none;
+
+}
+.disabled-button:hover{
+ 
+  transition: none;
+}
 
 .link-btn {
   background: none;
@@ -136,6 +145,7 @@ button:hover {
 .delete-button {
   margin-left: 10px;
 }
+
 .deleted-document {
   color: rgb(164, 23, 89);
   font-size: 20px;
@@ -303,4 +313,35 @@ button:hover {
 }
 .disabled-button{
   text-decoration-color: gray;
+}
+tag-container {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  display: flex;
+  flex-direction: column; /* Makes each tag appear in its own line */
+}
+
+/* Label for each tag */
+.tag-label {
+  display: flex;
+  align-items: center; /* Centers radio button and text vertically */
+  padding: 5px 10px;
+  margin: 5px 0; /* Adds space between tags */
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  cursor: pointer;
+  background-color: #f9f9f9;
+  width: fit-content;
+}
+
+/* Radio button styling */
+.tag-label input[type="radio"] {
+  margin-right: 10px; /* Space between radio button and text */
+}
+
+/* Styling for selected tag */
+.tag-label input[type="radio"]:checked + span {
+  background-color: #007BFF;
+  color: white;
 }

@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Authentication from "./components/Authentication";
 import MakeDocument from "./components//Documents/MakeDocument";
 import Documents from "./components/Documents/Documents";
+import TagBar from "./components/Documents/TagBar";
 import OneDocument from "./components/Documents/OneDocument";
 import NavBar from "./components/NavBar";
 import Header from "./components/Header";
@@ -31,12 +32,7 @@ function App() {
   useEffect(() => {
     loadEmployees();
   }, []);
-  useEffect(() => {
-    loadTags();
-  }, []);
-  useEffect(() => {
-    //  loadDocutags();
-  }, []);
+
   const loadDepts = async () => {
     try {
       const response = await axios.get('api/departments');
@@ -53,14 +49,7 @@ function App() {
       console.log(error);
     }
   }
-  const loadTags = async () => {
-    try {
-      const response = await axios.get('api/tags');
-      setTags(response.data);
-    } catch (error) {
-      console.log(error);
-    }
-  }
+
   // const loadDocutags = async () => {
   //   try {
   //     const response = await axios.get('api/tags');
@@ -145,8 +134,8 @@ function App() {
           <NavBar departments={departments} />
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path='/login' element={<Authentication authenticate={authenticate} registrate={registrate} changePass={changePass} sendCode={sendCode} ddepartments={departments} />} />
-            <Route path='/documents/:department' element={<Documents employees={employees} userId={userId} />} />
+            <Route path='/login' element={<Authentication authenticate={authenticate} registrate={registrate} changePass={changePass} sendCode={sendCode} departments={departments} />} />
+            <Route path='/documents/:department' element={<Documents employees={employees} userId={userId} departments={departments} />} />
             <Route path='/documents/:department/make/:id?' element={<MakeDocument userId={userId} />} />
             <Route path='/document/:department/:id' element={<OneDocument />} />
             <Route path="/documents/:department/upload" element={<UploadPage />} />

@@ -51,7 +51,7 @@ const DocumentCard = ({ doc, department, deleteDocument }) => {
             // const pathWithBackSlash=document.path.replace(/\//g, '\\');
             const encodedFilePath = encodeURIComponent(doc.path);
 
-            const response = await axios.get(`api/plswork/download/?filePath=${encodedFilePath}`, {
+            const response = await axios.get(`api/documents/download/?filePath=${encodedFilePath}`, {
                 headers: {
                     'Authorization': `Bearer ${window.sessionStorage.getItem("auth_token")}`
                 },
@@ -135,15 +135,12 @@ const DocumentCard = ({ doc, department, deleteDocument }) => {
 //}, [previewDoc]);
 
     const handlePreview = async () => {
-        // setPreviewDoc(document.id);
-        // handlePreview();
-
+       
         const pathResponse = await axios.get(`api/documents/path/${doc.title}/${doc.format}`, {
             headers: {
                 'Authorization': `Bearer ${window.sessionStorage.getItem("auth_token")}`
             }
         })
-
         const base64=pathResponse.data.base64;
 
         var newWindow = window.open();

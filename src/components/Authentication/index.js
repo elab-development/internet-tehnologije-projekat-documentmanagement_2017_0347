@@ -15,7 +15,7 @@ const Authentication = ({authenticate, registrate,changePass, sendCode,departmen
       {currentForm === 'login' &&  <Login  onFormSwitch = {toggleForm} authenticate={authenticate}/> }
       {currentForm === 'register' &&  <Register onFormSwitch = {toggleForm} registrate={registrate} departments={departments} />}
       {currentForm === 'change-pass' &&  <ForgotPassword onFormSwitch = {toggleForm} sendCode={sendCode} />}
-      {currentForm === 'reset-password' &&  <ChangePassword onFormSwitch = {toggleForm} changePass={changePass} />}
+       {currentForm === 'reset-password' &&  <ChangePassword onFormSwitch = {toggleForm} changePass={changePass} />} 
       </>)
 }
 export default Authentication; 

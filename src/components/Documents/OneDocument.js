@@ -1,8 +1,7 @@
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 const OneDocument = (props) => {
-    const { department, id } = useParams();
-    const navigate = useNavigate();
+   
     const location = useLocation();
     const doc = location.state || {};
 
@@ -14,10 +13,10 @@ const OneDocument = (props) => {
             <span className='document-date'>
                 {new Date(doc.date).toLocaleDateString()}
             </span>
-            <br />
-            {/* <p>Created by <b>{employee.name}</b></p> */}
             <p>{doc.preview}</p>
             <br />
+            <br />
+            {/* <p>Created by <b>{employee.name}</b></p> */}
             <br />
             {/* <div className="change-buttons">
                 <Link to={"/documents/" + department + "/make/" + id}>

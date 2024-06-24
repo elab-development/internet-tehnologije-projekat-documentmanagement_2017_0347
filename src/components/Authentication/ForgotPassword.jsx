@@ -22,9 +22,9 @@ const ForgotPassword = (props) => {
                 <form className="login-form" onSubmit={handleSubmit}>
                     <label htmlFor="email">email</label>
                     <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="email" />
-                    <button type="submit">Send code</button>
+                    <button type="submit"  onClick={() => props.onFormSwitch('reset-password')}>Send code</button>
                 </form>
-                <button className="link-btn" onClick={() => props.onFormSwitch('reset-password')}>Back to login</button>
+                <button className="link-btn" onClick={() => props.onFormSwitch('login')}>Back to login</button>
             </div>
         </>
     )

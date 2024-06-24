@@ -25,8 +25,8 @@ const ChangePassword = (props) => {
                 <input value={code} onChange={(e) => setCode(e.target.value)} type="string" placeholder="" />
                 <label htmlFor="password">password</label>
                 <input value={pass}  onChange={(e) => setPass(e.target.value)} id="password" type="password" placeholder="" />
-                <label htmlFor="password">confirm password</label>
-                <input value={confirmPass}  onChange={(e) => setConfrimPass(e.target.value)} id="password" type="password" placeholder="" />
+                <label htmlFor="password2">confirm password</label>
+                <input value={confirmPass}  onChange={(e) => setConfrimPass(e.target.value)} id="password2" type="password" placeholder="" />
                 <button type="submit">Change password</button>
             </form>
         </div>
