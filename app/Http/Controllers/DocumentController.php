@@ -20,7 +20,6 @@ use Illuminate\Support\Facades\Storage;
 use Dompdf\Dompdf;
 use Illuminate\Support\Facades\File;
 
-//update nije gotov, proveri da li se path cuva ispravno i uniformno u svim fjama
 
 
 class DocumentController extends Controller
@@ -42,7 +41,7 @@ class DocumentController extends Controller
             return response()->json(['message' => 'No employees, sorry.'], 200);
         }
         $subset = $employees->map(function ($employee) {
-            return $employee->only(['id', 'name', 'email', 'department_fk']);
+            return $employee->only(['id', 'name', 'email', 'department_fk', 'role']);
         });
         return $subset;
     }
@@ -207,9 +206,6 @@ class DocumentController extends Controller
                 }
             } elseif ($extension === 'pdf') {
                 $format = 'pdf';
-
-                // $text = file_get_contents($absolutePath);
-
                 $pdfParser = new Parser();
                 $pdf = $pdfParser->parseFile($file->path());
                 $text = $pdf->getText();
@@ -222,10 +218,6 @@ class DocumentController extends Controller
             if ($dotIndex !== false) {
                 $preview = substr($text, 0, $dotIndex + 1);
             }
-
-            // $text = Storage::get($path);
-            // $base64Preview = base64_encode($text);
-            // $textDecoded = base64_decode($base64Preview);
             $dirtyFileName = $request->file('file')->getClientOriginalName();
             $cleanFileName = pathinfo($dirtyFileName, PATHINFO_FILENAME);
             Document::create([
@@ -238,6 +230,7 @@ class DocumentController extends Controller
                 'path' => $absolutePath
             ]);
             $latestDocument = Document::orderBy('date', 'desc')->first();
+            //cini mi se da je ovo bolje da izbrisemo
             $tags = $this->getAllTags();
             foreach ($tags as $tag) {
                 if (str_contains($text, $tag->keyword) || str_contains($cleanFileName, $tag->keyword)) {
@@ -254,22 +247,7 @@ class DocumentController extends Controller
         }
     }
 
-    public function downloadDocument($name, $id)
-    {
-        $document = Document::where('id', $id)->first();
-        if (!$document) {
-            return response()->json(['message' => 'Document not found.']);
-        }
-        $basePath = 'C:/xampp/htdocs/laravel domaci/internet-tehnologije-projekat-documentmanagement_2017_0347/storage/app/';
-        $filePath = $basePath . $document->path;
-        if (!Storage::disk('local')->exists($document->path)) {
-            return response()->json(['message' => 'File not found.'], 404);
-        }
-        $fileName = basename($filePath);
-        //$downloadPath = 'C:/xampp/htdocs/laravel domaci/internet-tehnologije-projekat-documentmanagement_2017_0347/storage/app/downloads/' . $fileName;
-        return response()->download($filePath, $fileName);
-    }
-
+    
     public function download(Request $request)
     {
         // Define the path to the file
@@ -286,7 +264,7 @@ class DocumentController extends Controller
         // Return the file as a response to download
         return response()->download($filePath);
     }
-
+    
     public function makeDocument(Request $request, $name)
     {
         $departments = Department::all();
@@ -309,18 +287,18 @@ class DocumentController extends Controller
                 'format' => [
                     'required',
                     Rule::in($format_values)
-                ]
-            ]);
-
+                    ]
+                ]);
+                
             if ($validator->fails()) {
                 return response()->json(['message' => 'Check if all fields are filled and if format field is in the correct format.']);
             }
-
+            
             $employee = auth()->user();
             $employee_fk = $employee->id;
             $date = Carbon::now();
             $filePath = null;
-
+            
             if (request('format') == 'word') {
                 $phpWord = new PhpWord();
                 $section = $phpWord->addSection();
@@ -380,9 +358,9 @@ class DocumentController extends Controller
                     'format' => [
                         'required',
                         Rule::in($format_values)
-                    ]
-                ]);
-
+                        ]
+                    ]);
+                    
                 if ($validator->fails()) {
                     return response()->json(['message' => 'Check if all fields are filled and if format field is in the correct format.']);
                 }
@@ -428,78 +406,24 @@ class DocumentController extends Controller
     }
 
 
+    
     public function renameDocument(Request $request, $name, $id)
     {
         $document = Document::where('id', $id)->first();
-        $title = $document->title;
-        $path = $document->path;
-        if ($document) {
-            if ($request->user()->role == 'admin' || $document->employee_fk == $request->user()->id) {
-                $validator = Validator::make($request->only('title'), [
-                    'title' => 'required'
-                ]);
-
-                if ($validator->fails()) {
-                    return response()->json(['message' => 'Check if title field is filled.']);
-                }
-
-                if ($document->format == 'word') {
-                    $filePath = storage_path('app\\public\\') . $title . '.docx';
-                    $filePath = str_replace('/', '\\', $filePath);
-                    $phpWord = IOFactory::load($filePath);
-                    $phpWord->addTitle(request('title'));
-                    $newFilePath = storage_path('app\\public\\') . request('title') . '.docx';
-                    Storage::delete($path);
-                    $path = 'public\\' . request('title') . '.docx';
-                    $phpWord->save($newFilePath, 'Word2007');
-                } else {
-                    $pdfPath = 'public\\' . request('title');
-                    $pdfContent = Storage::get($pdfPath);
-                    $newTitle = $request->title;
-                    $html = "<h1>$newTitle</h1>";
-                    $dompdf = new Dompdf();
-                    $dompdf->loadHtml($pdfContent);
-                    $dompdf->loadHtml($html);
-                    $dompdf->render();
-                    $newPdfContent = $dompdf->output();
-                    $pdfPath = storage_path('app\\public\\') . $newTitle . '.pdf';
-                    Storage::delete($path);
-                    $path = 'public\\' . $newTitle . 'pdf';
-                    file_put_contents($pdfPath, $newPdfContent);
-                }
-
-                $date = Carbon::now();
-                $document->title = $request->title;
-                $document->date = $date;
-                $document->path = $path;
-                $document->update();
-
-                return response()->json(['message' => 'Document title successfully updated.']);
-            } else {
-                return response()->json(['message' => 'You do not have the right privilege to update document title.']);
-            }
-        } else {
-            return response()->json(['message' => 'Document does not exist.']);
-        }
-    }
-
-    public function renameDocumentZeka(Request $request, $name, $id)
-    {
-        $document = Document::where('id', $id)->first();
 
         if ($document) {
             if ($request->user()->role == 'admin' || $document->employee_fk == $request->user()->id) {
                 $validator = Validator::make($request->only('title'), [
                     'title' => 'required'
                 ]);
-
+                
                 if ($validator->fails()) {
                     return response()->json(['message' => 'Check if title field is filled.']);
                 }
 
                 $filePath = storage_path('app\\public\\') . $document->title;
                 $newFilePath = storage_path('app\\public\\') . request('title');
-
+                
                 if ($document->format == 'word') {
                     $extension = '.docx';
                     $filePath .= $extension;
@@ -510,13 +434,13 @@ class DocumentController extends Controller
                     $newFilePath .= $extension;
                 }
                 rename($filePath, $newFilePath);
-
+                
                 $date = Carbon::now();
                 $document->title = $request->title;
                 $document->date = $date;
                 $document->path = $newFilePath;
                 $document->update();
-
+                
                 return response()->json(['message' => 'Document title successfully updated.']);
             } else {
                 return response()->json(['message' => 'You do not have the right privilege to update document title.']);
@@ -532,16 +456,16 @@ class DocumentController extends Controller
         if (!$document) {
             return response()->json(['message' => 'Document does not exist.']);
         }
-
+        
         if ($document->format == 'pdf') {
             $filePath = 'public\\' . $document->title . '.pdf';
         } else {
             $filePath = 'public\\' . $document->title . '.docx';
         }
         $cleanedPath = str_replace('\\\\', '\\', $filePath);
-
+        
         $user = Employee::where('id', (string) $userId)->first();
-
+        
         if ($user->role == 'admin' || $document->employee_fk == $user->id) {
             if (Storage::exists($cleanedPath)) {
                 Storage::delete($cleanedPath);
@@ -556,11 +480,11 @@ class DocumentController extends Controller
         }
     }
 
-
+    
     public function getFilteredDocuments($name, $filter)
     {
         if (empty($filter)) $this->getAllDocumentsFromDepartment($name);
-
+        
         $departments = Department::all();
         if (empty($departments)) {
             return response()->json(['message' => 'No departments.']);
@@ -572,7 +496,7 @@ class DocumentController extends Controller
                 break;
             }
         }
-
+        
         $documents = Document::all(); //mozda ce morati da se koristi paginate zbog paginacije , nisam sigurna
         if (empty($documents)) {
             return response()->json(['message' => 'No documents.']);
@@ -581,14 +505,14 @@ class DocumentController extends Controller
         $documentsfromDept = collect(new Document());
         foreach ($documents as $doc) {
             if ($doc->department_fk === $dept_id)
-                $documentsfromDept->push($doc);
-        }
-        if (empty($documentsfromDept)) {
-            return response()->json(['message' => 'No documents in this department.']);
-        }
-
-        $tags = Tag::all();
-        if ($tags->isEmpty()) {
+            $documentsfromDept->push($doc);
+    }
+    if (empty($documentsfromDept)) {
+        return response()->json(['message' => 'No documents in this department.']);
+    }
+    
+    $tags = Tag::all();
+    if ($tags->isEmpty()) {
             return response()->json(['message' => 'No tags.']);
         }
         $tag_id = 0;
@@ -598,7 +522,7 @@ class DocumentController extends Controller
                 break;
             }
         }
-
+        
         $docu_tags = DocuTag::all();
         if ($docu_tags->isEmpty()) {
             return response()->json(['message' => 'No tags that match this document.']);
@@ -614,14 +538,14 @@ class DocumentController extends Controller
         if ($documentsfromDeptWithFilter->isEmpty()) {
             return response()->json(['message' => 'No documents with this tag in this department.']);
         }
-
+        
         return DocumentResource::collection($documentsfromDeptWithFilter);
     }
 
     public function getSearchedDocuments($name, $search)
     {
         if (empty($search)) $this->getAllDocumentsFromDepartment($name);
-
+        
         $departments = Department::all();
         if ($departments->isEmpty()) {
             return response()->json(['message' => 'No departments.']);
@@ -633,12 +557,12 @@ class DocumentController extends Controller
                 break;
             }
         }
-
+        
         $documents = Document::all(); //mozda ce morati da se koristi paginate zbog paginacije , nisam sigurna
         if ($documents->isEmpty()) {
             return response()->json(['message' => 'No documents.']);
         }
-
+        
         $filteredDocs = collect(new Document());
         foreach ($documents as $doc) {
             $text = Storage::get($doc->path);
@@ -660,13 +584,13 @@ class DocumentController extends Controller
         if ($documentsfromDept->isEmpty()) {
             return response()->json(['message' => 'No documents in this department that match the search parameter.']);
         }
-
+        
         return DocumentResource::collection($documentsfromDept);
     }
-
+    
     public function getDocumentsByAuthor($name, $id)
     {
-
+        
         $departments = Department::all();
         if ($departments->isEmpty()) {
             return response()->json(['message' => 'No departments.']);
@@ -678,12 +602,12 @@ class DocumentController extends Controller
                 break;
             }
         }
-
+        
         $documents = Document::all(); //mozda ce morati da se koristi paginate zbog paginacije , nisam sigurna
         if ($documents->isEmpty()) {
             return response()->json(['message' => 'No documents.']);
         }
-
+        
         $filteredDocs = collect(new Document());
         foreach ($documents as $doc) {
             if ($doc->employee_fk == $id) {
@@ -697,15 +621,15 @@ class DocumentController extends Controller
         $documentsfromDept = collect(new Document());
         foreach ($filteredDocs as $fdoc) {
             if ($fdoc->department_fk == $dept_id)
-                $documentsfromDept->push($fdoc);
-        }
+            $documentsfromDept->push($fdoc);
+    }
         if ($documentsfromDept->isEmpty()) {
             return response()->json(['message' => 'No documents in this department written by this author.']);
         }
-
+        
         return DocumentResource::collection($documentsfromDept);
     }
-
+    
     /**
      * Display a listing of the resource.
      */
@@ -713,7 +637,7 @@ class DocumentController extends Controller
     {
         //
     }
-
+    
     /**
      * Show the form for creating a new resource.
      */
@@ -721,7 +645,7 @@ class DocumentController extends Controller
     {
         //
     }
-
+    
     /**
      * Store a newly created resource in storage.
      */
@@ -737,7 +661,7 @@ class DocumentController extends Controller
     {
         //
     }
-
+    
     /**
      * Show the form for editing the specified resource.
      */
@@ -745,7 +669,7 @@ class DocumentController extends Controller
     {
         //
     }
-
+    
     /**
      * Update the specified resource in storage.
      */
@@ -753,7 +677,7 @@ class DocumentController extends Controller
     {
         //
     }
-
+    
     /**
      * Remove the specified resource from storage.
      */
@@ -762,3 +686,73 @@ class DocumentController extends Controller
         //
     }
 }
+
+// public function renameDocument(Request $request, $name, $id)
+// {
+//     $document = Document::where('id', $id)->first();
+//     $title = $document->title;
+//     $path = $document->path;
+//     if ($document) {
+//         if ($request->user()->role == 'admin' || $document->employee_fk == $request->user()->id) {
+    //             $validator = Validator::make($request->only('title'), [
+//                 'title' => 'required'
+//             ]);
+
+//             if ($validator->fails()) {
+    //                 return response()->json(['message' => 'Check if title field is filled.']);
+    //             }
+    
+    //             if ($document->format == 'word') {
+        //                 $filePath = storage_path('app\\public\\') . $title . '.docx';
+        //                 $filePath = str_replace('/', '\\', $filePath);
+        //                 $phpWord = IOFactory::load($filePath);
+        //                 $phpWord->addTitle(request('title'));
+        //                 $newFilePath = storage_path('app\\public\\') . request('title') . '.docx';
+        //                 Storage::delete($path);
+        //                 $path = 'public\\' . request('title') . '.docx';
+        //                 $phpWord->save($newFilePath, 'Word2007');
+        //             } else {
+//                 $pdfPath = 'public\\' . request('title');
+//                 $pdfContent = Storage::get($pdfPath);
+//                 $newTitle = $request->title;
+//                 $html = "<h1>$newTitle</h1>";
+//                 $dompdf = new Dompdf();
+//                 $dompdf->loadHtml($pdfContent);
+//                 $dompdf->loadHtml($html);
+//                 $dompdf->render();
+//                 $newPdfContent = $dompdf->output();
+//                 $pdfPath = storage_path('app\\public\\') . $newTitle . '.pdf';
+//                 Storage::delete($path);
+//                 $path = 'public\\' . $newTitle . 'pdf';
+//                 file_put_contents($pdfPath, $newPdfContent);
+//             }
+
+//             $date = Carbon::now();
+//             $document->title = $request->title;
+//             $document->date = $date;
+//             $document->path = $path;
+//             $document->update();
+
+//             return response()->json(['message' => 'Document title successfully updated.']);
+//         } else {
+//             return response()->json(['message' => 'You do not have the right privilege to update document title.']);
+//         }
+//     } else {
+//         return response()->json(['message' => 'Document does not exist.']);
+//     }
+// }
+// public function downloadDocument($name, $id)
+// {
+//     $document = Document::where('id', $id)->first();
+//     if (!$document) {
+//         return response()->json(['message' => 'Document not found.']);
+//     }
+//     $basePath = 'C:/xampp/htdocs/laravel domaci/internet-tehnologije-projekat-documentmanagement_2017_0347/storage/app/';
+//     $filePath = $basePath . $document->path;
+//     if (!Storage::disk('local')->exists($document->path)) {
+//         return response()->json(['message' => 'File not found.'], 404);
+//     }
+//     $fileName = basename($filePath);
+//     //$downloadPath = 'C:/xampp/htdocs/laravel domaci/internet-tehnologije-projekat-documentmanagement_2017_0347/storage/app/downloads/' . $fileName;
+//     return response()->download($filePath, $fileName);
+// }

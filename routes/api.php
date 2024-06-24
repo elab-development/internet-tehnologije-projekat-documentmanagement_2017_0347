@@ -36,10 +36,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/documents/{name}/{id}', [DocumentController::class, 'getDocumentFromDepartment']);
     Route::post('/documents/{name}/upload', [DocumentController::class, 'uploadDocument']);
     Route::post('/documents/{name}/make', [DocumentController::class, 'makeDocument']);
-    Route::get('/documents/{name}/download/{id}', [DocumentController::class, 'downloadDocument']);
-    Route::get('/plswork/download', [DocumentController::class, 'download'])->where('filename', '[A-Za-z]+');
+    Route::get('/documents/download', [DocumentController::class, 'download']);
     Route::put('/documents/{name}/{id}/update', [DocumentController::class, 'updateDocument']);
-    Route::put('/documents/{name}/{id}/rename', [DocumentController::class, 'renameDocumentZeka']);
+    Route::put('/documents/{name}/{id}/rename', [DocumentController::class, 'renameDocument']);
     Route::delete('/documents/{name}/{id}/{userId}/delete', [DocumentController::class, 'deleteDocument']);
     Route::get('/documents/{name}/filter/{filter?}', [DocumentController::class, 'getFilteredDocuments']);
     Route::get('/documents/{name}/author/{id}', [DocumentController::class, 'getDocumentsByAuthor']);
@@ -48,3 +47,5 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/documents/path/{title}/{extension}', [DocumentController::class, 'getDocumentPath']);
     Route::post('/logout', [AuthController::class, 'logout']);
 });
+
+// Route::get('/documents/{name}/download/{id}', [DocumentController::class, 'downloadDocument']);
