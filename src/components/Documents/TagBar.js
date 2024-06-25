@@ -27,6 +27,7 @@ function TagBar({ filterDocs }) {
 
   return (
     <div className='tag-container '>
+      <p className='tag-search'>Search by tag:</p>
       {areTagsLoaded && (
         <label className="tag-label">
           <input
@@ -37,7 +38,7 @@ function TagBar({ filterDocs }) {
             checked={selectedTag === "all"}
             onChange={handleTagChange}
           />
-          <span> All </span>
+          <span className='tag-text-color'> All </span>
         </label>)}
       {tags.map(tag => (
         <label key={tag.id} className="tag-label">
@@ -49,7 +50,7 @@ function TagBar({ filterDocs }) {
             checked={selectedTag == tag.id}
             onChange={handleTagChange}
           />
-          <span> {tag.keyword}</span>
+          <span className='tag-text-color'> {tag.keyword}</span>
         </label>
       ))}
       {/* <button type="submit" onClick={() => filterDocs(selectedTag)}>Apply</button> */}
