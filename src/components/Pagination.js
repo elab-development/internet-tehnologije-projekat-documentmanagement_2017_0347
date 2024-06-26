@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Paginate = ({ docsPerPage, totalDocs, paginate, previousPage, nextPage }) => {
+const Paginate = ({ docsPerPage, totalDocs, paginate, previousPage, nextPage, currentPage }) => {
     const pageNumbers = [];
 
     for (let i = 1; i <= Math.ceil(totalDocs / docsPerPage); i++) {
@@ -17,7 +17,7 @@ const Paginate = ({ docsPerPage, totalDocs, paginate, previousPage, nextPage }) 
                     <li
                         key={number}
                         onClick={() => paginate(number)}
-                        className="page-number"
+                        className={`page-number ${currentPage === number ? 'active' : ''}`}
                     >
                         {number}
                     </li>

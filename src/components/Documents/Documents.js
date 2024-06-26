@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
 import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import Paginate from '../Pagination';
+import AuthorBar from './AuthorsBar';
 import DocumentCard from './DocumentCard';
 import TagBar from "./TagBar";
-import AuthorBar from './AuthorsBar';
-import Paginate from '../Pagination';
 
 const Documents = (props) => {
     const { department } = useParams();
@@ -25,12 +25,7 @@ const Documents = (props) => {
 
     const [selectedTag, setSelectedTag] = useState('all');
     const [selectedAuthor, setSelectedAuthor] = useState('all');
-    // const currentDocs = departmentDocs.slice(indexOfFirstDoc, indexOfLastDoc);
-
-    // axios.get(`documents/${department}`)
-    //     .then(response => {
-    //         setDepartmentDocs(response.data);
-    //     })
+    const currentDocs = filteredDocuments.slice(indexOfFirstDoc, indexOfLastDoc);
 
     useEffect(() => {
         axios.get('api/docuTags').then((res) => {
@@ -52,13 +47,13 @@ const Documents = (props) => {
                 'Authorization': `Bearer ${window.sessionStorage.getItem("auth_token")}`
             }
         })
-        .then(response => {
-            setDepartmentDocs(response.data.data);
-        })
-        .catch(error => {
-            console.log('error', error);
-            setError('Only authorized users can view this content.');
-        });
+            .then(response => {
+                setDepartmentDocs(response.data.data);
+            })
+            .catch(error => {
+                console.log('error', error);
+                setError('Only authorized users can view this content.');
+            });
     }, [department]);
 
     useEffect(() => {
@@ -67,6 +62,16 @@ const Documents = (props) => {
 
     useEffect(() => {
         let docsToShow = departmentDocs;
+
+        if (isPdfChecked && isWordChecked) {
+            // do not filter
+        } else if (isPdfChecked) {
+            docsToShow = departmentDocs.filter(depDoc => depDoc.format === 'pdf');
+        } else if (isWordChecked) {
+            docsToShow = departmentDocs.filter(depDoc => depDoc.format === 'word');
+        } else {
+            docsToShow = [];
+        }
 
         if (selectedTag !== "all") {
             const documentIds = allDocuTags.filter(docTag => docTag.tag_id == selectedTag).map(el => el.document_id);
@@ -82,7 +87,8 @@ const Documents = (props) => {
         }
 
         setFilteredDocuments(docsToShow);
-    }, [selectedTag, selectedAuthor, searchParam, departmentDocs, allDocuTags]);
+        setCurrentPage(1);
+    }, [selectedTag, selectedAuthor, searchParam, departmentDocs, allDocuTags, isWordChecked, isPdfChecked]);
 
     const deleteDocument = async (documentId, department) => {
         try {
@@ -96,7 +102,7 @@ const Documents = (props) => {
                 setIsDocumentDeleted(true);
                 setDepartmentDocs(departmentDocs.filter(doc => doc.id !== documentId));
             }
-        } catch (err) { 
+        } catch (err) {
             throw err;
         }
     }
@@ -107,39 +113,21 @@ const Documents = (props) => {
         }
     }, [isDocumentDeleted]);
 
-    // const previousPage = () => {
-    //     if (currentPage !== 1) {
-    //         setCurrentPage(currentPage - 1);
-    //     }
-    // };
+    const previousPage = () => {
+        if (currentPage !== 1) {
+            setCurrentPage(currentPage - 1);
+        }
+    };
 
-    // const nextPage = () => {
-    //     if (currentPage !== Math.ceil(filteredDocuments.length / docsPerPage)) {
-    //         setCurrentPage(currentPage + 1);
-    //     }
-    // };
+    const nextPage = () => {
+        if (currentPage !== Math.ceil(filteredDocuments.length / docsPerPage)) {
+            setCurrentPage(currentPage + 1);
+        }
+    };
 
-    // const paginate = (selected) => {
-    //     setCurrentPage(selected);
-    // };
-
-    // function pdfCheckboxChange(e) {
-    //     setIsPdfChecked((current) => !current);
-    //     if (e.target.checked) {
-    //         setFilteredDocuments(filteredDocuments.concat(departmentDocs.filter(document => document.format === 'pdf')));
-    //     } else {
-    //         setFilteredDocuments(filteredDocuments.filter(document => document.format !== 'pdf'))
-    //     }
-    // }
-
-    // function wordCheckboxChange(e) {
-    //     setIsWordChecked((current) => !current)
-    //     if (e.target.checked) {
-    //         setFilteredDocuments(departmentDocs.concat(departmentDocs.filter(document => document.format === 'word')));
-    //     } else {
-    //         setFilteredDocuments(filteredDocuments.filter(document => document.format !== 'word'))
-    //     }
-    // }
+    const paginate = (selected) => {
+        setCurrentPage(selected);
+    };
 
     return (
         <div>
@@ -152,43 +140,44 @@ const Documents = (props) => {
             <div className='container'>
                 Search documents:
                 <form className="filter-docs">
-                    <input 
-                        className='filter-docs-input' 
+                    <input
+                        className='filter-docs-input'
                         type="text"
-                        value={searchParam} 
+                        value={searchParam}
                         onChange={(event) => setSearchParam(event.target.value)}
                         placeholder="Search by title"
                     />
-                    {/* <input className='filter-docs-input' checked={isPdfChecked} type="checkbox"
-                        value="pdf" onChange={pdfCheckboxChange} />pdf
+                    <input className='filter-docs-input' checked={isPdfChecked} type="checkbox"
+                        value="pdf" onChange={() => setIsPdfChecked(!isPdfChecked)} /> PDF
                     <input className='filter-docs-input' checked={isWordChecked} type="checkbox"
-                        value="word" onChange={wordCheckboxChange} /> word */}
+                        value="word" onChange={() => setIsWordChecked(!isWordChecked)} /> WORD
                 </form>
                 <TagBar filterDocs={filterDocumentsByTag} />
-                <AuthorBar 
-                    employees={props.employees} 
-                    departmentId={props.departments.find(d => d.name === department).id} 
-                    filterDocumentsByAuthor={filterDocumentsByAuthor} 
+                <AuthorBar
+                    employees={props.employees}
+                    departmentId={props.departments.find(d => d.name === department).id}
+                    filterDocumentsByAuthor={filterDocumentsByAuthor}
                 />
                 <Link className='create-new-doc' to={`/documents/${department}/upload2`}><button>Upload a document</button></Link>
                 <Link className='create-new-doc' to={`/documents/${department}/make`}><button>Create a document</button></Link>
             </div>
-            
+
             {error && (<div>{error}</div>)}
 
             <div className="all-documents">
-                {filteredDocuments.map(document => (
+                {currentDocs.map(document => (
                     <DocumentCard key={document.id} doc={document} department={department} deleteDocument={deleteDocument} />
                 ))}
             </div>
-            
-            {/* <Paginate
+
+            {<Paginate
                 docsPerPage={docsPerPage}
                 totalDocs={filteredDocuments.length}
                 paginate={paginate}
                 previousPage={previousPage}
                 nextPage={nextPage}
-            /> */}
+                currentPage={currentPage}
+            />}
         </div>
     );
 }
