@@ -9,8 +9,6 @@ import TagBar from "./TagBar";
 const Documents = (props) => {
     const { department } = useParams();
     const [isDocumentDeleted, setIsDocumentDeleted] = useState(false);
-    // const [currentDepartment, setCurrentDepartment] = useState(department);
-
     const [searchParam, setSearchParam] = useState('');
     const [isPdfChecked, setIsPdfChecked] = useState(true);
     const [isWordChecked, setIsWordChecked] = useState(true);
@@ -75,7 +73,7 @@ const Documents = (props) => {
 
         if (selectedTag !== "all") {
             const documentIds = allDocuTags.filter(docTag => docTag.tag_id == selectedTag).map(el => el.document_id);
-            docsToShow = departmentDocs.filter(depDoc => documentIds.includes(depDoc.id));
+            docsToShow =  docsToShow.filter(depDoc => documentIds.includes(depDoc.id));
         }
 
         if (selectedAuthor !== "all") {
@@ -130,7 +128,9 @@ const Documents = (props) => {
     };
 
     return (
-        <div>
+        <>
+                    {error ? (<div className="error-msg">{error}</div>) :
+                    <>
             <div>
                 {isDocumentDeleted && (
                     <div className='deleted-document'>Document successfully deleted!</div>
@@ -138,38 +138,43 @@ const Documents = (props) => {
             </div>
 
             <div className='container'>
-                Search documents:
+                <div className='side-bar'>
+                <Link className='create-new-doc' to={`/documents/${department}/upload`}><button>Upload a document</button></Link>
+                <Link className='create-new-doc' to={`/documents/${department}/make`}><button>Create a document</button></Link>
+                <br/>
                 <form className="filter-docs">
+              <label htmlFor='title-of-document'> Search documents by title:</label> 
                     <input
                         className='filter-docs-input'
                         type="text"
+                        id='title-of-document'
                         value={searchParam}
                         onChange={(event) => setSearchParam(event.target.value)}
                         placeholder="Search by title"
                     />
-                    <input className='filter-docs-input' checked={isPdfChecked} type="checkbox"
-                        value="pdf" onChange={() => setIsPdfChecked(!isPdfChecked)} /> PDF
-                    <input className='filter-docs-input' checked={isWordChecked} type="checkbox"
-                        value="word" onChange={() => setIsWordChecked(!isWordChecked)} /> WORD
+                    <label htmlFor='file'> Search documents by file type:</label> 
+                    <div className='filter-docs-options'>
+                    <div className='filter-docs-option'>
+    
+                    <input className='filter-docs-input-checkbox' checked={isPdfChecked} type="checkbox"
+                        value="pdf" id='file'onChange={() => setIsPdfChecked(!isPdfChecked)} /> PDF</div>
+                        <div className='filter-docs-option'>
+                    <input className='filter-docs-input-checkbox' checked={isWordChecked} type="checkbox"
+                        value="word" onChange={() => setIsWordChecked(!isWordChecked)} /> WORD</div></div>
                 </form>
-                <TagBar filterDocs={filterDocumentsByTag} />
                 <AuthorBar
                     employees={props.employees}
                     departmentId={props.departments.find(d => d.name === department).id}
                     filterDocumentsByAuthor={filterDocumentsByAuthor}
                 />
-                <Link className='create-new-doc' to={`/documents/${department}/upload2`}><button>Upload a document</button></Link>
-                <Link className='create-new-doc' to={`/documents/${department}/make`}><button>Create a document</button></Link>
+                <TagBar filterDocs={filterDocumentsByTag} />
             </div>
 
-            {error && (<div>{error}</div>)}
 
             <div className="all-documents">
                 {currentDocs.map(document => (
                     <DocumentCard key={document.id} doc={document} department={department} deleteDocument={deleteDocument} />
                 ))}
-            </div>
-
             {<Paginate
                 docsPerPage={docsPerPage}
                 totalDocs={filteredDocuments.length}
@@ -178,7 +183,10 @@ const Documents = (props) => {
                 nextPage={nextPage}
                 currentPage={currentPage}
             />}
-        </div>
+            </div>
+                </div></>}
+
+        </>
     );
 }
 

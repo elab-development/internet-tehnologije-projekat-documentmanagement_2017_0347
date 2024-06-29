@@ -14,7 +14,6 @@ import Footer from "./components/Footer";
 import axios from "axios";
 import UploadPage from "./components/Documents/UploadPage";
 import UploadPage2 from "./components/Documents/UploadPage2";
-import ForgotPassword from "./components/Authentication/ForgotPassword";
 
 function App() {
   const [userId, setUserId] = useState(null);
@@ -138,8 +137,7 @@ function App() {
             <Route path='/documents/:department' element={<Documents employees={employees} userId={userId} departments={departments} />} />
             <Route path='/documents/:department/make/:id?' element={<MakeDocument userId={userId} />} />
             <Route path='/document/:department/:id' element={<OneDocument />} />
-            <Route path="/documents/:department/upload" element={<UploadPage />} />
-            <Route path="/documents/:department/upload2" element={<UploadPage2 userId={userId} />} />
+            <Route path="/documents/:department/upload" element={<UploadPage2 userId={userId} />} />
           </Routes>
           <Footer />
         </Router>

@@ -38,7 +38,7 @@ function TagBar({ filterDocs }) {
             checked={selectedTag === "all"}
             onChange={handleTagChange}
           />
-          <span className='tag-text-color'> All </span>
+          <span className='tag-text-color'> all </span>
         </label>)}
       {tags.map(tag => (
         <label key={tag.id} className="tag-label">

@@ -21,7 +21,7 @@ function AuthorBar(props) {
         <div className='author-container'>
             <p className='author-search'>Search by author:</p>
             <select value={selectedAuthor} onChange={handleAuthorChange}>
-                <option value="all">All</option>
+                <option value="all">all</option>
                 {authors.map(author => (
                     <option key={author.id} value={author.id}>{author.name}</option>
                 ))}
